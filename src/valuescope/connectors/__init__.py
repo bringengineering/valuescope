@@ -14,4 +14,8 @@ __all__ = [
     "parse_title_item",
     "build_title_url",
     "fetch_building",
+    "parse_excel",
+    "Transaction",
+    "ParsedTransactions",
 ]
+from .molit_excel import ParsedTransactions, Transaction, parse_excel
