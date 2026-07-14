@@ -17,5 +17,9 @@ __all__ = [
     "parse_excel",
     "Transaction",
     "ParsedTransactions",
+    "fetch_sh_rent",
+    "fetch_sh_trade",
+    "RtmsError",
 ]
 from .molit_excel import ParsedTransactions, Transaction, parse_excel
+from .rtms_api import fetch_sh_rent, fetch_sh_trade, RtmsError
