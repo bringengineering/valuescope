@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BRING ValueScope — 무실동 단독/다가구 지도</title>
+<style>
+  :root{
+    --sans:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",Menlo,Consolas,monospace;
+    --bg:#EEF1F7;--surface:#FFFFFF;--surface-2:#F3F5FA;--ink:#131A26;--ink-2:#46536B;--muted:#7A879C;
+    --line:#E1E6EF;--line-strong:#CBD3E1;--accent:#1B4FD8;
+    --t0:#9FB6DF;--t1:#5B8AE8;--t2:#2E5BE6;--t3:#16308A;
+    --shadow:0 1px 2px rgba(19,26,38,.06),0 8px 24px rgba(19,26,38,.08);
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0B0F17;--surface:#131A27;--surface-2:#1A2231;--ink:#EAF0F8;--ink-2:#A9B6CC;--muted:#6E7C93;
+    --line:#26313F;--line-strong:#33404F;--accent:#5385F0;
+    --t0:#3C4E70;--t1:#4C79D6;--t2:#5385F0;--t3:#9DB6F0;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.4);
+  }}
+  *{box-sizing:border-box;} html,body{height:100%;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+  .app{display:grid;grid-template-rows:auto 1fr;height:100vh;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:11px 18px;background:var(--surface);border-bottom:1px solid var(--line);}
+  .brand{display:flex;align-items:baseline;gap:10px;}
+  .brand .logo{font-weight:800;font-size:16px;}.brand .logo b{color:var(--accent);}
+  .brand .sub{font-family:var(--mono);font-size:12px;color:var(--muted);}
+  .pill{font-family:var(--mono);font-size:11px;padding:4px 9px;border-radius:999px;border:1px solid var(--line-strong);color:var(--ink-2);background:var(--surface);white-space:nowrap;}
+  .main{display:grid;grid-template-columns:340px 1fr;min-height:0;}
+  .side{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;}
+  .filters{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px;}
+  .filters h1{margin:0;font-size:14px;}.filters .count{font-family:var(--mono);font-size:12px;color:var(--muted);}
+  .geo{display:flex;gap:6px;}
+  .geo input{flex:1;min-width:0;font:inherit;font-size:12.5px;padding:8px 10px;border-radius:9px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);}
+  .geo input:focus{outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent);border-color:var(--accent);}
+  .geo button{font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;padding:8px 12px;border-radius:9px;border:1px solid var(--accent);background:var(--accent);color:#fff;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11.5px;color:var(--ink-2);}
+  .legend .lg{display:flex;align-items:center;gap:6px;font-family:var(--mono);}
+  .legend .sw{width:11px;height:11px;border-radius:50%;}
+  .list{overflow:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px;min-height:0;}
+  .b{text-align:left;width:100%;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 12px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;}
+  .b:hover{border-color:var(--accent);}
+  .b.active{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent),var(--shadow);}
+  .b .r1{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+  .b .addr{font-size:13px;font-weight:700;letter-spacing:-.01em;}
+  .b .ty{font-family:var(--mono);font-size:10px;color:var(--muted);}
+  .b .dot{width:12px;height:12px;border-radius:50%;flex:none;margin-top:2px;}
+  .b .st{display:flex;gap:12px;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);}
+  .b .st span{color:var(--muted);}
+  #map{width:100%;height:100%;background:var(--surface-2);}
+  .pin{transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);}
+  .iw{font-family:var(--sans);width:260px;padding:13px 15px;color:#131A26;}
+  .iw h2{margin:0;font-size:14px;}
+  .iw .ty{font-family:var(--mono);font-size:11px;color:#7A879C;margin-top:2px;}
+  .iw .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:11px 0;}
+  .iw .c .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:#7A879C;}
+  .iw .c .v{font-family:var(--mono);font-size:13px;font-weight:700;margin-top:1px;}
+  .iw .est{background:#EEF1F7;border-radius:9px;padding:9px 11px;font-size:12px;}
+  .iw .est b{font-family:var(--mono);}
+  .iw .note{font-size:10.5px;color:#7A879C;margin-top:8px;}
+  .legendmap{position:absolute;left:356px;bottom:14px;z-index:5;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:9px 12px;font-size:11px;}
+  .maperr{position:absolute;inset:auto 16px 16px auto;max-width:360px;z-index:9;background:#F7E4E2;color:#C4362F;border:1px solid #e6b3ad;border-radius:10px;padding:12px 14px;font-size:12.5px;display:none;}
+  .maperr.on{display:block;}
+  .mapwrap{position:relative;min-height:0;}
+  @media (max-width:780px){.main{grid-template-columns:1fr;grid-template-rows:minmax(150px,36vh) 1fr;}.legendmap{left:12px;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><span class="logo">BRING <b>ValueScope</b></span><span class="sub">무실동 단독/다가구</span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="pill">추정 · 신뢰도 D</span><span class="pill" id="srcPill">건축물대장+실거래</span></div>
+  </header>
+  <div class="main">
+    <aside class="side">
+      <div class="filters">
+        <h1>무실동 건물 <span class="count" id="count"></span></h1>
+        <form class="geo" id="geoForm" autocomplete="off"><input id="geoInput" type="text" placeholder="주소/건물 찾기 (예: 무실로 …)"><button type="submit">검색</button></form>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="list" id="list"></div>
+    </aside>
+    <div class="mapwrap">
+      <div id="map"></div>
+      <div class="legendmap" id="legendmap"></div>
+      <div class="maperr" id="maperr"></div>
+    </div>
+  </div>
+</div>
+<script src="./data/muysil.js"></script>
+<script>
+  const DEFAULT_NAVER_MAPS_KEY="1iu68jzhci", KEY_STORE="bring_naver_maps_key";
+  const params=new URLSearchParams(location.search);
+  const isValid=v=>/^[A-Za-z0-9_-]{8,40}$/.test(v||"");
+  const reqKey=params.get("ncpKeyId")||localStorage.getItem(KEY_STORE);
+  const NAVER_MAPS_KEY=isValid(reqKey)?reqKey:DEFAULT_NAVER_MAPS_KEY;
+  if(reqKey&&isValid(reqKey))localStorage.setItem(KEY_STORE,reqKey);
+
+  const DATA=window.MUYSIL_BUILDINGS||{buildings:[],center:{lat:37.335,lng:127.918},count:0,rate:{}};
+  const TIERS=[{c:"var(--t0)",l:"낮음"},{c:"var(--t1)",l:"중하"},{c:"var(--t2)",l:"중상"},{c:"var(--t3)",l:"높음"}];
+  const man=v=>v==null?"—":Number(v).toLocaleString()+"만";
+  const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const fmtDate=s=>s&&s.length>=8?`${s.slice(0,4)}.${s.slice(4,6)}`:"—";
+
+  const els={list:document.getElementById("list"),count:document.getElementById("count"),err:document.getElementById("maperr")};
+  let map,infoWindow,searchMarker=null;const markers={};
+
+  function tierColorHex(t){
+    const el=document.createElement("div");el.style.color=TIERS[t].c;document.body.appendChild(el);
+    const c=getComputedStyle(el).color;el.remove();return c;
+  }
+  function buildLegend(){
+    const html=TIERS.map((t,i)=>`<span class="lg"><span class="sw" style="background:${t.c}"></span>${t.l}</span>`).join("");
+    document.getElementById("legend").innerHTML='<span style="color:var(--muted)">추정 월세 →</span>'+html;
+    document.getElementById("legendmap").innerHTML='<div style="font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--muted);margin-bottom:5px;text-transform:uppercase">추정 월세 수준</div>'+html;
+  }
+  function infoHTML(b){
+    return `<div class="iw"><h2>${esc(b.address)}</h2><div class="ty">${esc(b.house_type)} · 무실동</div>
+      <div class="grid">
+        <div class="c"><div class="k">연면적</div><div class="v">${b.total_floor_area?b.total_floor_area+"㎡":"—"}</div></div>
+        <div class="c"><div class="k">층수</div><div class="v">지상 ${b.floors_above??"—"}</div></div>
+        <div class="c"><div class="k">사용승인</div><div class="v">${fmtDate(b.approval_date)}</div></div>
+        <div class="c"><div class="k">건물명</div><div class="v" style="font-size:11px">${esc(b.name)||"—"}</div></div>
+      </div>
+      <div class="est">추정 임대료 · <b>월세 보증 ${man(b.est_deposit_manwon)}/월 ${man(b.est_monthly_rent_manwon)}</b></div>
+      <div class="note">※ 지역 전월세 실거래 중앙값 기반 추정(신뢰도 D). 실제 호가·임대현황 입력 시 정밀 재계산.</div></div>`;
+  }
+  function renderList(items){
+    els.count.textContent=`(${items.length}/${DATA.count})`;
+    els.list.innerHTML="";
+    items.slice(0,400).forEach(b=>{
+      const btn=document.createElement("button");btn.className="b";btn.dataset.id=b.id;
+      btn.innerHTML=`<div class="r1"><div><div class="addr">${esc(b.address)}</div><div class="ty">${esc(b.house_type)}</div></div>
+        <span class="dot" style="background:${TIERS[b.tier||0].c}"></span></div>
+        <div class="st"><span><span>연면적</span> ${b.total_floor_area||"—"}㎡</span><span><span>월세</span> ${man(b.est_monthly_rent_manwon)}</span></div>`;
+      btn.addEventListener("click",()=>focus(b.id));els.list.appendChild(btn);
+    });
+  }
+  function setActive(id){document.querySelectorAll(".b").forEach(e=>e.classList.toggle("active",e.dataset.id===id));}
+  function focus(id){const b=DATA.buildings.find(x=>x.id===id);if(!b||!map)return;setActive(id);
+    map.panTo(new naver.maps.LatLng(b.lat,b.lng));if(markers[id]){infoWindow.setContent(infoHTML(b));infoWindow.open(map,markers[id]);}}
+  function renderMarkers(){
+    Object.values(markers).forEach(m=>m.setMap(null));for(const k in markers)delete markers[k];
+    const bounds=new naver.maps.LatLngBounds();let any=false;
+    DATA.buildings.forEach(b=>{
+      if(b.lat==null)return;any=true;const pos=new naver.maps.LatLng(b.lat,b.lng);
+      const m=new naver.maps.Marker({position:pos,map,icon:{content:`<div class="pin" style="background:${tierColorHex(b.tier||0)}"></div>`,anchor:new naver.maps.Point(6,6)}});
+      naver.maps.Event.addListener(m,"click",()=>{setActive(b.id);infoWindow.setContent(infoHTML(b));infoWindow.open(map,m);});
+      markers[b.id]=m;bounds.extend(pos);
+    });
+    if(any)map.fitBounds(bounds,{top:50,right:50,bottom:50,left:50});
+  }
+  function localMatch(q){const s=q.replace(/\s/g,"");return DATA.buildings.find(b=>(b.address+b.name).replace(/\s/g,"").includes(s));}
+  function setupGeo(){
+    document.getElementById("geoForm").addEventListener("submit",e=>{e.preventDefault();
+      const q=document.getElementById("geoInput").value.trim();if(!q)return;
+      const hit=localMatch(q);if(hit){focus(hit.id);return;}
+      if(!(window.naver&&naver.maps.Service))return;
+      naver.maps.Service.geocode({query:q},(st,res)=>{
+        if(st!==naver.maps.Service.Status.OK||!res.v2.addresses.length)return;
+        const a=res.v2.addresses[0],pos=new naver.maps.LatLng(+a.y,+a.x);
+        if(searchMarker)searchMarker.setMap(null);
+        searchMarker=new naver.maps.Marker({position:pos,map,zIndex:1000,icon:{content:'<div class="pin" style="background:#C4362F;width:14px;height:14px"></div>',anchor:new naver.maps.Point(7,7)}});
+        map.setCenter(pos);map.setZoom(16);
+      });
+    });
+  }
+  function initMap(){
+    map=new naver.maps.Map("map",{center:new naver.maps.LatLng(DATA.center.lat,DATA.center.lng),zoom:15,minZoom:11,mapDataControl:false});
+    infoWindow=new naver.maps.InfoWindow({borderWidth:0,backgroundColor:"transparent",pixelOffset:new naver.maps.Point(0,-6)});
+    renderMarkers();
+  }
+  function showErr(m){els.err.textContent=m;els.err.classList.add("on");}
+  function loadNaver(){
+    window.navermap_authFailure=()=>showErr("네이버 지도 인증 실패 — Web 서비스 URL 등록 확인.");
+    window.__vsReady=()=>initMap();
+    const s=document.createElement("script");
+    s.src=`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${encodeURIComponent(NAVER_MAPS_KEY)}&submodules=geocoder&callback=__vsReady`;
+    s.async=true;s.onerror=()=>showErr("네이버 지도 SDK 로드 차단.");document.head.appendChild(s);
+    setTimeout(()=>{if(!map&&(!window.naver||!naver.maps))showErr("네이버 지도 응답 지연 — 새로고침/키 확인.");},6000);
+  }
+  document.getElementById("srcPill").textContent=`건물 ${DATA.count} · 실거래 ${DATA.rate&&DATA.rate.n_rent||0}건 기반`;
+  buildLegend();renderList(DATA.buildings);setupGeo();loadNaver();
+</script>
+</body>
+</html>
