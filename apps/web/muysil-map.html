@@ -59,7 +59,17 @@
   .iw .c .v{font-family:var(--mono);font-size:13px;font-weight:700;margin-top:1px;}
   .iw .est{background:#EEF1F7;border-radius:9px;padding:9px 11px;font-size:12px;}
   .iw .est b{font-family:var(--mono);}
+  .iw .vbox{margin-top:10px;border-top:1px dashed #CBD3E1;padding-top:10px;}
+  .iw .vbox label{font-size:11px;color:#46536B;display:flex;align-items:center;gap:7px;}
+  .iw .vbox input{width:74px;font:inherit;font-family:var(--mono);font-size:13px;padding:5px 7px;border:1px solid #CBD3E1;border-radius:7px;text-align:right;}
+  .iw .vd{margin-top:7px;font-family:var(--mono);font-size:11.5px;padding:6px 9px;border-radius:7px;background:#F3F5FA;color:#7A879C;}
+  .iw .vd b{font-size:12.5px;}
+  .iw .vd-good{background:#E3F2E8;color:#1B7A3D;}
+  .iw .vd-mid{background:#FBF3DF;color:#8A6D18;}
+  .iw .vd-bad{background:#F7E4E2;color:#C4362F;}
   .iw .note{font-size:10.5px;color:#7A879C;margin-top:8px;}
+  .marketbar{font-family:var(--mono);font-size:11px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;line-height:1.5;}
+  .marketbar b{color:var(--accent);}
   .legendmap{position:absolute;left:356px;bottom:14px;z-index:5;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:9px 12px;font-size:11px;}
   .maperr{position:absolute;inset:auto 16px 16px auto;max-width:360px;z-index:9;background:#F7E4E2;color:#C4362F;border:1px solid #e6b3ad;border-radius:10px;padding:12px 14px;font-size:12.5px;display:none;}
   .maperr.on{display:block;}
@@ -78,6 +88,7 @@
       <div class="filters">
         <h1>무실동 건물 <span class="count" id="count"></span></h1>
         <form class="geo" id="geoForm" autocomplete="off"><input id="geoInput" type="text" placeholder="주소/건물 찾기 (예: 무실로 …)"><button type="submit">검색</button></form>
+        <div class="marketbar" id="marketbar"></div>
         <div class="legend" id="legend"></div>
       </div>
       <div class="list" id="list"></div>
@@ -117,16 +128,35 @@
     document.getElementById("legendmap").innerHTML='<div style="font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--muted);margin-bottom:5px;text-transform:uppercase">추정 월세 수준</div>'+html;
   }
   function infoHTML(b){
+    const val=b.est_value_eok!=null?`${b.est_value_eok}억`:"—";
+    const yld=b.gross_yield_pct!=null?`${b.gross_yield_pct}%`:"—";
     return `<div class="iw"><h2>${esc(b.address)}</h2><div class="ty">${esc(b.house_type)} · 무실동</div>
       <div class="grid">
         <div class="c"><div class="k">연면적</div><div class="v">${b.total_floor_area?b.total_floor_area+"㎡":"—"}</div></div>
-        <div class="c"><div class="k">층수</div><div class="v">지상 ${b.floors_above??"—"}</div></div>
         <div class="c"><div class="k">사용승인</div><div class="v">${fmtDate(b.approval_date)}</div></div>
-        <div class="c"><div class="k">건물명</div><div class="v" style="font-size:11px">${esc(b.name)||"—"}</div></div>
+        <div class="c"><div class="k">추정 시장가치</div><div class="v">${val}</div></div>
+        <div class="c"><div class="k">추정 수익률</div><div class="v">${yld}</div></div>
       </div>
       <div class="est">추정 임대료 · <b>월세 보증 ${man(b.est_deposit_manwon)}/월 ${man(b.est_monthly_rent_manwon)}</b></div>
-      <div class="note">※ 지역 전월세 실거래 중앙값 기반 추정(신뢰도 D). 실제 호가·임대현황 입력 시 정밀 재계산.</div></div>`;
+      <div class="vbox">
+        <label>호가 입력 <input type="number" inputmode="decimal" min="0" step="0.1" placeholder="예 6.5" oninput="vsVerdict('${b.id}',this.value)"> 억</label>
+        <div class="vd" id="vd-${b.id}">호가를 넣으면 무실동 실거래 시세 대비 저평가 여부를 판정합니다.</div>
+      </div>
+      <div class="note">※ 추정 임대료·시장가치는 무실동 실거래 중앙값 기반 가정(신뢰도 C~D). 확정 감정가·대출 가능성 아님.</div></div>`;
   }
+  window.vsVerdict=function(id,eok){
+    const b=DATA.buildings.find(x=>x.id===id),el=document.getElementById("vd-"+id);
+    if(!el)return;const v=parseFloat(eok);
+    const bd=DATA.sale_band&&(b&&b.total_floor_area>=330?DATA.sale_band.won_per_m2_large_manwon:DATA.sale_band.won_per_m2_all_manwon);
+    if(!b||!b.total_floor_area||!bd||!(v>0)){el.className="vd";el.textContent="호가를 넣으면 무실동 실거래 시세 대비 저평가 여부를 판정합니다.";return;}
+    const pm2=(v*10000)/b.total_floor_area;let label,cls;
+    if(pm2<=bd.p25){label="저평가 후보 ✓";cls="vd-good";}
+    else if(pm2>=bd.p75){label="고평가 구간";cls="vd-bad";}
+    else{label="적정 시세";cls="vd-mid";}
+    const seg=b.total_floor_area>=330?"대형":"전체";
+    el.className="vd "+cls;
+    el.innerHTML=`호가 ${pm2.toFixed(0)}만/㎡ → <b>${label}</b><br><span style="opacity:.75">무실동 ${seg} 다가구 시세 ${bd.p25}~${bd.p75}만/㎡(중앙 ${bd.med}) · 실거래 ${bd.n}건</span>`;
+  };
   function renderList(items){
     els.count.textContent=`(${items.length}/${DATA.count})`;
     els.list.innerHTML="";
@@ -181,8 +211,15 @@
     s.async=true;s.onerror=()=>showErr("네이버 지도 SDK 로드 차단.");document.head.appendChild(s);
     setTimeout(()=>{if(!map&&(!window.naver||!naver.maps))showErr("네이버 지도 응답 지연 — 새로고침/키 확인.");},6000);
   }
-  document.getElementById("srcPill").textContent=`건물 ${DATA.count} · 실거래 ${DATA.rate&&DATA.rate.n_rent||0}건 기반`;
-  buildLegend();renderList(DATA.buildings);setupGeo();loadNaver();
+  function buildMarketbar(){
+    const sb=DATA.sale_band,el=document.getElementById("marketbar");if(!el)return;
+    if(!sb){el.style.display="none";return;}
+    const L=sb.won_per_m2_large_manwon,P=sb.price_manwon_all;
+    el.innerHTML=`<span style="color:var(--muted)">무실동 매매 시세</span> · 대형 다가구 <b>${L.med}만/㎡</b> (${L.p25}~${L.p75}) · `
+      +`총액 중앙 <b>${(P.med/1e4).toFixed(1)}억</b> · 실거래 ${sb.n_sale}건/24개월`;
+  }
+  document.getElementById("srcPill").textContent=`건물 ${DATA.count} · 실거래 매매 ${DATA.sale_band&&DATA.sale_band.n_sale||0}·전월세 ${DATA.rate&&DATA.rate.n_rent||0}건`;
+  buildMarketbar();buildLegend();renderList(DATA.buildings);setupGeo();loadNaver();
 </script>
 </body>
 </html>
