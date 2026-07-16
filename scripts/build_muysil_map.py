@@ -31,6 +31,9 @@ DONG_NAME = "무실동"
 RESID = {"단독주택", "다가구주택", "다중주택", "다세대주택", "연립주택"}
 CAP = int(os.environ.get("MUYSIL_CAP", "300"))   # 파일럿 표본 상한(속도)
 RENT_MONTHS = ["202506", "202505", "202504", "202503", "202502", "202501"]
+SALE_MONTHS = [f"{y}{m:02d}" for y in (2025, 2024, 2023)
+               for m in range(1, 13) if not (y == 2025 and m > 6)][:24]
+LARGE_M2 = 330.0   # 대형 다가구 경계(연면적)
 
 
 def log(*a):
@@ -101,11 +104,45 @@ def muysil_rent_rates():
     return rate
 
 
+# --- 3b) 매매 실거래 → 무실동 시세 밴드(원/㎡, 규모별) ----------------------
+def _band(xs):
+    xs = sorted(xs)
+    if not xs:
+        return None
+    q = lambda f: xs[min(len(xs) - 1, int(len(xs) * f))]  # noqa: E731
+    return {"n": len(xs), "p25": round(q(0.25)),
+            "med": round(statistics.median(xs)), "p75": round(q(0.75))}
+
+
+def muysil_sale_band():
+    sales = []
+    for ym in SALE_MONTHS:
+        try:
+            sales += [t for t in rtms.fetch_sh_trade(SIGUNGU, ym) if t.sigungu == DONG_NAME]
+        except Exception as e:
+            log("매매 조회 오류", ym, e)
+    gel = [t for t in sales if t.area_m2 and t.price_manwon]
+    large = [float(t.price_manwon) / float(t.area_m2) for t in gel if float(t.area_m2) >= LARGE_M2]
+    allp = [float(t.price_manwon) / float(t.area_m2) for t in gel]
+    band = {
+        "n_sale": len(gel), "months": len(SALE_MONTHS),
+        "won_per_m2_large_manwon": _band(large),
+        "won_per_m2_all_manwon": _band(allp),
+        "price_manwon_all": _band([float(t.price_manwon) for t in gel]),
+    }
+    log(f"매매 무실동 {len(gel)}건 | 대형 시세 "
+        f"{band['won_per_m2_large_manwon'] and band['won_per_m2_large_manwon']['med']}만/㎡")
+    return band
+
+
 def main():
     buildings = fetch_muysil_buildings()
     rate = muysil_rent_rates()
+    sale_band = muysil_sale_band()
     wpm2 = rate["wolse_per_m2"] or 0
     dpm2 = rate["wolse_deposit_per_m2"] or 0
+    large_med = (sale_band["won_per_m2_large_manwon"] or {}).get("med")
+    all_med = (sale_band["won_per_m2_all_manwon"] or {}).get("med")
 
     records = []
     geo_ok = 0
@@ -121,6 +158,11 @@ def main():
         area = float(b.total_floor_area_m2) if b.total_floor_area_m2 else None
         est_monthly = round(wpm2 * area) if (area and wpm2) else None      # 만원
         est_deposit = round(dpm2 * area) if (area and dpm2) else None      # 만원
+        # 추정 시장가치 = 연면적 × 규모별 실거래 시세(만원/㎡)
+        sale_rate = (large_med if (area and area >= LARGE_M2) else all_med)
+        est_value = round(area * sale_rate) if (area and sale_rate) else None  # 만원
+        gross_yield = (round(est_monthly * 12 / est_value * 100, 1)
+                       if (est_monthly and est_value) else None)               # %
         records.append({
             "id": f"muysil-{i}",
             "name": b.building_name or (addr.split()[-1] if addr else "건물"),
@@ -132,6 +174,9 @@ def main():
             "approval_date": b.approval_date,
             "est_monthly_rent_manwon": est_monthly,
             "est_deposit_manwon": est_deposit,
+            "est_value_manwon": est_value,
+            "est_value_eok": round(est_value / 1e4, 1) if est_value else None,
+            "gross_yield_pct": gross_yield,
         })
         if geo_ok % 25 == 0:
             log(f"  지오코딩 {geo_ok}건…")
@@ -150,9 +195,12 @@ def main():
         "dong": "강원특별자치도 원주시 무실동",
         "center": {"lat": 37.335, "lng": 127.918},
         "rate": rate,
+        "sale_band": sale_band,
         "count": len(records),
-        "confidence": "D",
-        "note": "추정 임대료는 무실동 전월세 실거래 중앙값 기반 가정(신뢰도 D). 매매 실거래 연동 시 저평가 판정 추가.",
+        "confidence": "C",
+        "note": ("추정 임대료·시장가치는 무실동 실거래 중앙값 기반 가정(신뢰도 C~D). "
+                 f"매매 실거래 {sale_band['n_sale']}건(24개월)·전월세 {rate['n_rent']}건 기반. "
+                 "지번 마스킹으로 개별 건물-실거래 직접 매칭 불가. 확정 감정가 아님."),
         "buildings": records,
     }
     out = Path(os.environ.get("MUYSIL_OUT", "/tmp/muysil_buildings.json"))
