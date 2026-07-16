@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BRING ValueScope — 원주 건물 지도</title>
+<style>
+  :root{
+    --sans:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",Menlo,Consolas,monospace;
+    --bg:#EEF1F7;--surface:#FFFFFF;--surface-2:#F3F5FA;--ink:#131A26;--ink-2:#46536B;--muted:#7A879C;
+    --line:#E1E6EF;--line-strong:#CBD3E1;--accent:#1B4FD8;
+    --t0:#9FB6DF;--t1:#5B8AE8;--t2:#2E5BE6;--t3:#16308A;
+    --shadow:0 1px 2px rgba(19,26,38,.06),0 8px 24px rgba(19,26,38,.08);
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0B0F17;--surface:#131A27;--surface-2:#1A2231;--ink:#EAF0F8;--ink-2:#A9B6CC;--muted:#6E7C93;
+    --line:#26313F;--line-strong:#33404F;--accent:#5385F0;
+    --t0:#3C4E70;--t1:#4C79D6;--t2:#5385F0;--t3:#9DB6F0;--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.4);
+  }}
+  *{box-sizing:border-box;} html,body{height:100%;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+  .app{display:grid;grid-template-rows:auto 1fr;height:100vh;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:11px 18px;background:var(--surface);border-bottom:1px solid var(--line);}
+  .brand{display:flex;align-items:baseline;gap:10px;}.brand .logo{font-weight:800;font-size:16px;}.brand .logo b{color:var(--accent);}
+  .brand .sub{font-family:var(--mono);font-size:12px;color:var(--muted);}
+  .pill{font-family:var(--mono);font-size:11px;padding:4px 9px;border-radius:999px;border:1px solid var(--line-strong);color:var(--ink-2);background:var(--surface);white-space:nowrap;text-decoration:none;}
+  a.pill{font-weight:700;border-color:var(--accent);color:var(--accent);}
+  .main{display:grid;grid-template-columns:320px 1fr;min-height:0;}
+  .side{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;}
+  .filters{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:11px;}
+  .filters h1{margin:0;font-size:14px;}.filters .count{font-family:var(--mono);font-size:12px;color:var(--muted);}
+  .geo{display:flex;gap:6px;}
+  .geo input{flex:1;min-width:0;font:inherit;font-size:12.5px;padding:8px 10px;border-radius:9px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);}
+  .geo button{font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;padding:8px 12px;border-radius:9px;border:1px solid var(--accent);background:var(--accent);color:#fff;}
+  .grp{display:flex;flex-direction:column;gap:6px;}
+  .grp .lab{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;}
+  .chip{font:inherit;font-size:11.5px;cursor:pointer;padding:5px 9px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-2);}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+  select{font:inherit;font-size:12.5px;padding:7px 9px;border-radius:9px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);}
+  .marketbar{font-family:var(--mono);font-size:11px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;line-height:1.5;}
+  .marketbar b{color:var(--accent);}
+  .legend{display:flex;flex-wrap:wrap;gap:7px 12px;font-size:11px;color:var(--ink-2);padding:12px 16px;border-top:1px solid var(--line);}
+  .legend .lg{display:flex;align-items:center;gap:6px;font-family:var(--mono);}
+  .legend .sw{width:11px;height:11px;border-radius:50%;}
+  .hint{padding:12px 16px;font-size:11.5px;color:var(--muted);line-height:1.5;}
+  #map{width:100%;height:100%;background:var(--surface-2);}
+  .mapwrap{position:relative;min-height:0;}
+  .pin{transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:pointer;}
+  .cl{transform:translate(-50%,-50%);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--mono);font-weight:800;border:2px solid rgba(255,255,255,.85);box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer;}
+  .maperr{position:absolute;inset:auto 16px 16px auto;max-width:360px;z-index:9;background:#F7E4E2;color:#C4362F;border:1px solid #e6b3ad;border-radius:10px;padding:12px 14px;font-size:12.5px;display:none;}
+  .maperr.on{display:block;}
+  .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;color:var(--muted);z-index:4;background:var(--surface-2);}
+  .iw{font-family:var(--sans);width:344px;padding:18px 20px;color:#131A26;}
+  .iw h2{margin:0;font-size:18px;line-height:1.25;letter-spacing:-.01em;}
+  .iw .ty{font-family:var(--mono);font-size:12.5px;color:#5B8AE8;font-weight:700;margin-top:4px;}
+  .iw .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;margin:15px 0;}
+  .iw .c .k{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:#7A879C;}
+  .iw .c .v{font-family:var(--mono);font-size:17px;font-weight:800;margin-top:3px;letter-spacing:-.01em;}
+  .iw .est{background:#EEF1F7;border-radius:11px;padding:12px 14px;font-size:13.5px;}
+  .iw .est b{font-family:var(--mono);font-size:14.5px;}
+  .iw .vbox{margin-top:14px;border-top:1px dashed #CBD3E1;padding-top:14px;}
+  .iw .vbox label{font-size:13px;font-weight:700;color:#131A26;display:flex;align-items:center;gap:9px;}
+  .iw .vbox input{width:96px;font:inherit;font-family:var(--mono);font-size:16px;font-weight:700;padding:8px 10px;border:1.5px solid #5B8AE8;border-radius:9px;text-align:right;}
+  .iw .vd{margin-top:10px;font-family:var(--mono);font-size:13px;line-height:1.5;padding:10px 13px;border-radius:9px;background:#F3F5FA;color:#7A879C;}
+  .iw .vd b{font-size:15px;}
+  .iw .vd-good{background:#E3F2E8;color:#1B7A3D;}.iw .vd-mid{background:#FBF3DF;color:#8A6D18;}.iw .vd-bad{background:#F7E4E2;color:#C4362F;}
+  .iw .note{font-size:11px;line-height:1.5;color:#7A879C;margin-top:11px;}
+  @media (max-width:820px){.main{grid-template-columns:1fr;grid-template-rows:auto 1fr;}.side{max-height:44vh;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><span class="logo">BRING <b>ValueScope</b></span><span class="sub">원주 건물 지도</span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <a class="pill" href="./index.html">← 딜 지도</a>
+      <span class="pill" id="srcPill">건물 —</span>
+      <span class="pill">추정 · 신뢰도 C~D</span>
+    </div>
+  </header>
+  <div class="main">
+    <aside class="side">
+      <div class="filters">
+        <h1>원주 수익형 건물 <span class="count" id="count"></span></h1>
+        <form class="geo" id="geoForm" autocomplete="off"><input id="geoInput" type="text" placeholder="주소/동/건물 검색"><button type="submit">검색</button></form>
+        <div class="marketbar" id="marketbar">시세 로딩…</div>
+        <div class="grp"><span class="lab">법정동</span>
+          <select id="dongSel"><option value="">전체 동</option></select></div>
+        <div class="grp"><span class="lab">건물 유형</span>
+          <div class="chips" id="typeChips"></div></div>
+        <div class="grp"><span class="lab">색상 기준</span>
+          <div class="chips" id="colorChips">
+            <button class="chip on" data-color="yield">추정 수익률</button>
+            <button class="chip" data-color="type">건물 유형</button></div></div>
+      </div>
+      <div class="legend" id="legend"></div>
+      <div class="hint">지도를 움직이면 해당 영역 건물만 표시됩니다. 확대하면 개별 건물, 축소하면 묶음(숫자)으로 보입니다. 핀을 누르면 추정 시장가치·수익률과 <b>호가 저평가 판정</b>이 나옵니다.</div>
+    </aside>
+    <div class="mapwrap">
+      <div id="map"></div>
+      <div class="loading" id="loading">지도·데이터 로딩 중…</div>
+      <div class="maperr" id="maperr"></div>
+    </div>
+  </div>
+</div>
+<script src="./data/wonju.js"></script>
+<script>
+  const DEFAULT_NAVER_MAPS_KEY="1iu68jzhci",KEY_STORE="bring_naver_maps_key";
+  const params=new URLSearchParams(location.search);
+  const isValid=v=>/^[A-Za-z0-9_-]{8,40}$/.test(v||"");
+  const reqKey=params.get("ncpKeyId")||localStorage.getItem(KEY_STORE);
+  const NAVER_MAPS_KEY=isValid(reqKey)?reqKey:DEFAULT_NAVER_MAPS_KEY;
+  if(reqKey&&isValid(reqKey))localStorage.setItem(KEY_STORE,reqKey);
+
+  const D=window.WONJU||{buildings:[],bands:{},city_band:{},center:{lat:37.342,lng:127.92},count:0,dong_list:[]};
+  const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const man=v=>v==null?"—":Number(v).toLocaleString()+"만";
+  const fmtDate=s=>s&&(""+s).length>=6?`${(""+s).slice(0,4)}.${(""+s).slice(4,6)}`:"—";
+
+  // 유형 버킷
+  const BUCKET=u=>{
+    if(!u)return"기타";
+    if(u.indexOf("주택")>=0||u==="공동주택")return"주택";
+    if(u.indexOf("근린생활")>=0||u.indexOf("판매")>=0)return"상가·근생";
+    if(u.indexOf("업무")>=0)return"업무빌딩";
+    if(u.indexOf("숙박")>=0||u.indexOf("의료")>=0)return"숙박·의료";
+    return"기타";
+  };
+  const BUCKETS=["주택","상가·근생","업무빌딩","숙박·의료","기타"];
+  const BUCKET_C={"주택":"#5B8AE8","상가·근생":"#E8952E","업무빌딩":"#2E5BE6","숙박·의료":"#8A54D6","기타":"#7A879C"};
+  const YIELD_T=[{c:"#9FB6DF",l:"~4%"},{c:"#5B8AE8",l:"4~5%"},{c:"#2E5BE6",l:"5~6%"},{c:"#16308A",l:"6%+"}];
+  const yieldTier=y=>y==null?0:(y>=6?3:y>=5?2:y>=4?1:0);
+
+  let map,infoWindow,searchMarker=null,overlays=[],colorMode="yield";
+  const activeTypes=new Set(BUCKETS);let activeDong="";
+
+  const el=id=>document.getElementById(id);
+
+  function bandFor(b){
+    const bd=D.bands[b.dong]||{};const cb=D.city_band||{};
+    const big=(b.area||0)>=330;
+    return (big?bd.sale_large_per_m2:bd.sale_all_per_m2)||(big?cb.sale_large_per_m2:cb.sale_all_per_m2)||cb.sale_all_per_m2;
+  }
+  window.vsVerdict=function(id,eok){
+    const b=D._byId[id],box=el("vd-"+id);if(!box)return;
+    const v=parseFloat(eok),bd=bandFor(b);
+    if(!b||!b.area||!bd||!(v>0)){box.className="vd";box.textContent="호가를 넣으면 해당 동 실거래 시세 대비 저평가 여부를 판정합니다.";return;}
+    const pm2=(v*10000)/b.area;let label,cls;
+    if(pm2<=bd.p25){label="저평가 후보 ✓";cls="vd-good";}
+    else if(pm2>=bd.p75){label="고평가 구간";cls="vd-bad";}
+    else{label="적정 시세";cls="vd-mid";}
+    box.className="vd "+cls;
+    box.innerHTML=`호가 ${pm2.toFixed(0)}만/㎡ → <b>${label}</b><br><span style="opacity:.75">${esc(b.dong)} ${(b.area>=330?'대형':'전체')} 시세 ${bd.p25}~${bd.p75}만/㎡(중앙 ${bd.med}) · 실거래 ${bd.n}건</span>`;
+  };
+  function infoHTML(b){
+    const val=b.val!=null?`${b.val}억`:"—",yld=b.yld!=null?`${b.yld}%`:"—";
+    return `<div class="iw"><h2>${esc(b.address)}</h2><div class="ty">${esc(b.use)} · ${esc(b.dong)}</div>
+      <div class="grid">
+        <div class="c"><div class="k">연면적</div><div class="v">${b.area?b.area+"㎡":"—"}</div></div>
+        <div class="c"><div class="k">사용승인</div><div class="v">${fmtDate(b.approval)}</div></div>
+        <div class="c"><div class="k">추정 시장가치</div><div class="v">${val}</div></div>
+        <div class="c"><div class="k">추정 수익률</div><div class="v">${yld}</div></div>
+      </div>
+      <div class="est">추정 임대료 · <b>월세 보증 ${man(b.dep)}/월 ${man(b.em)}</b></div>
+      <div class="vbox"><label>호가 입력 <input type="number" inputmode="decimal" min="0" step="0.1" placeholder="예 6.5" oninput="vsVerdict('${b.id}',this.value)"> 억</label>
+        <div class="vd" id="vd-${b.id}">호가를 넣으면 해당 동 실거래 시세 대비 저평가 여부를 판정합니다.</div></div>
+      <div class="note">※ 추정 임대료·시장가치는 해당 동 실거래 중앙값 기반 가정(신뢰도 C~D). 확정 감정가·대출 가능성 아님.</div></div>`;
+  }
+  function color(b){return colorMode==="type"?BUCKET_C[BUCKET(b.use)]:YIELD_T[yieldTier(b.yld)].c;}
+
+  // ---- 클러스터 렌더링 ----
+  function clear(){overlays.forEach(o=>o.setMap(null));overlays=[];}
+  function visible(){
+    const b=map.getBounds();
+    return D.buildings.filter(x=>x.lat!=null
+      && (activeDong===""||x.dong===activeDong)
+      && activeTypes.has(BUCKET(x.use))
+      && b.hasLatLng(new naver.maps.LatLng(x.lat,x.lng)));
+  }
+  function render(){
+    if(!map||!map.getProjection())return;
+    clear();
+    const items=visible();
+    el("count").textContent=`(${items.length.toLocaleString()} / ${D.count.toLocaleString()})`;
+    const proj=map.getProjection(),CELL=58,cells={};
+    for(const b of items){
+      const pt=proj.fromCoordToOffset(new naver.maps.LatLng(b.lat,b.lng));
+      const k=Math.floor(pt.x/CELL)+"_"+Math.floor(pt.y/CELL);
+      (cells[k]||(cells[k]=[])).push(b);
+    }
+    const keys=Object.keys(cells);
+    for(const k of keys){
+      const g=cells[k];
+      if(g.length===1){
+        const b=g[0];
+        const m=new naver.maps.Marker({position:new naver.maps.LatLng(b.lat,b.lng),map,
+          icon:{content:`<div class="pin" style="background:${color(b)}"></div>`,anchor:new naver.maps.Point(6,6)}});
+        naver.maps.Event.addListener(m,"click",()=>{infoWindow.setContent(infoHTML(b));infoWindow.open(map,m);});
+        overlays.push(m);
+      }else{
+        let la=0,ln=0;for(const b of g){la+=b.lat;ln+=b.lng;}
+        const n=g.length,sz=n<10?32:n<50?40:n<200?50:60;
+        const shade=n<10?"#5B8AE8":n<50?"#2E5BE6":n<200?"#1B3FB0":"#16308A";
+        const m=new naver.maps.Marker({position:new naver.maps.LatLng(la/n,ln/n),map,zIndex:50,
+          icon:{content:`<div class="cl" style="width:${sz}px;height:${sz}px;background:${shade};font-size:${n<200?12:11}px">${n>=1000?(n/1000).toFixed(1)+"k":n}</div>`,anchor:new naver.maps.Point(sz/2,sz/2)}});
+        naver.maps.Event.addListener(m,"click",()=>{map.setCenter(new naver.maps.LatLng(la/n,ln/n));map.setZoom(Math.min(19,map.getZoom()+2));});
+        overlays.push(m);
+      }
+    }
+  }
+  let rt;function scheduleRender(){clearTimeout(rt);rt=setTimeout(render,120);}
+
+  // ---- UI ----
+  function buildUI(){
+    const sel=el("dongSel");
+    (D.dong_list||[]).sort((a,b)=>b.count-a.count).forEach(d=>{
+      const o=document.createElement("option");o.value=d.name;o.textContent=`${d.name} (${d.count})`;sel.appendChild(o);});
+    sel.addEventListener("change",()=>{activeDong=sel.value;
+      if(activeDong){const b=D.buildings.find(x=>x.dong===activeDong&&x.lat!=null);if(b){map.setCenter(new naver.maps.LatLng(b.lat,b.lng));map.setZoom(15);}}
+      render();});
+    const tc=el("typeChips");
+    BUCKETS.forEach(t=>{const c=document.createElement("button");c.className="chip on";c.textContent=t;
+      c.addEventListener("click",()=>{c.classList.toggle("on");c.classList.contains("on")?activeTypes.add(t):activeTypes.delete(t);render();});tc.appendChild(c);});
+    el("colorChips").querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{
+      el("colorChips").querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");
+      colorMode=c.dataset.color;buildLegend();render();}));
+    el("srcPill").textContent=`건물 ${D.count.toLocaleString()} · 실거래 매매 ${D.city_band&&D.city_band.n_sale||0}·전월세 ${D.city_band&&D.city_band.n_rent||0}`;
+    const cb=D.city_band||{},L=cb.sale_large_per_m2;
+    el("marketbar").innerHTML=L?`<span style="color:var(--muted)">원주 매매 시세</span> · 대형 <b>${L.med}만/㎡</b> (${L.p25}~${L.p75}) · 실거래 ${cb.n_sale}건/24개월`:"시세 데이터 준비중";
+    buildLegend();
+  }
+  function buildLegend(){
+    const arr=colorMode==="type"?BUCKETS.map(t=>({c:BUCKET_C[t],l:t})):YIELD_T.map(t=>({c:t.c,l:t.l}));
+    el("legend").innerHTML=`<span style="color:var(--muted)">${colorMode==="type"?"유형":"추정 수익률"}</span>`+
+      arr.map(t=>`<span class="lg"><span class="sw" style="background:${t.c}"></span>${t.l}</span>`).join("");
+  }
+  function setupGeo(){
+    el("geoForm").addEventListener("submit",e=>{e.preventDefault();
+      const q=el("geoInput").value.trim();if(!q)return;
+      const s=q.replace(/\s/g,"");
+      const hit=D.buildings.find(b=>b.lat!=null&&((b.address||"")+(b.name||"")+(b.dong||"")).replace(/\s/g,"").includes(s));
+      if(hit){map.setCenter(new naver.maps.LatLng(hit.lat,hit.lng));map.setZoom(18);render();
+        setTimeout(()=>{const m=overlays.find(o=>o.getPosition&&Math.abs(o.getPosition().lat()-hit.lat)<1e-6);if(m){infoWindow.setContent(infoHTML(hit));infoWindow.open(map,m);}},250);return;}
+      if(!(window.naver&&naver.maps.Service))return;
+      naver.maps.Service.geocode({query:q},(st,res)=>{
+        if(st!==naver.maps.Service.Status.OK||!res.v2.addresses.length)return;
+        const a=res.v2.addresses[0],pos=new naver.maps.LatLng(+a.y,+a.x);
+        if(searchMarker)searchMarker.setMap(null);
+        searchMarker=new naver.maps.Marker({position:pos,map,zIndex:1000,icon:{content:'<div class="pin" style="background:#C4362F;width:15px;height:15px"></div>',anchor:new naver.maps.Point(7,7)}});
+        map.setCenter(pos);map.setZoom(16);render();
+      });
+    });
+  }
+  function initMap(){
+    el("loading").style.display="none";
+    map=new naver.maps.Map("map",{center:new naver.maps.LatLng(D.center.lat,D.center.lng),zoom:13,minZoom:11,maxZoom:19,mapDataControl:false});
+    infoWindow=new naver.maps.InfoWindow({borderWidth:0,backgroundColor:"transparent",pixelOffset:new naver.maps.Point(0,-6)});
+    naver.maps.Event.addListener(map,"idle",scheduleRender);
+    buildUI();setupGeo();render();
+  }
+  function showErr(m){el("maperr").textContent=m;el("maperr").classList.add("on");el("loading").style.display="none";}
+  function loadNaver(){
+    window.navermap_authFailure=()=>showErr("네이버 지도 인증 실패 — Web 서비스 URL 등록 확인.");
+    window.__vsReady=()=>initMap();
+    const s=document.createElement("script");
+    s.src=`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${encodeURIComponent(NAVER_MAPS_KEY)}&submodules=geocoder&callback=__vsReady`;
+    s.async=true;s.onerror=()=>showErr("네이버 지도 SDK 로드 차단.");document.head.appendChild(s);
+    setTimeout(()=>{if(!map)showErr("네이버 지도 응답 지연 — 새로고침/키 확인.");},7000);
+  }
+  D._byId={};D.buildings.forEach(b=>D._byId[b.id]=b);
+  if(!D.count)D.count=D.buildings.length;
+  loadNaver();
+</script>
+</body>
+</html>
