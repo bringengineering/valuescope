@@ -64,7 +64,10 @@ def keep(b) -> bool:
     u = b.main_use or ""
     if u in EXCLUDE_USE or "아파트" in u:
         return False
-    if u == "공동주택" and (b.floors_above or 0) >= 5:  # 아파트 추정 → 제외
+    area = float(b.total_floor_area_m2) if b.total_floor_area_m2 else 0.0
+    if u == "공동주택" and ((b.floors_above or 0) >= 5 or area > 1000):  # 아파트 추정 → 제외
+        return False
+    if area > 20000:  # 초대형 단지·몰 → 제외
         return False
     return True
 

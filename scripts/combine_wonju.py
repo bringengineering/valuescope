@@ -21,6 +21,27 @@ def _band(meds):
     return {"n": len(meds), "p25": round(q(0.25)), "med": round(statistics.median(meds)), "p75": round(q(0.75))}
 
 
+# 추정 가치산정은 다가구 시세(원/㎡) 기반 → 소형~중형 주거·근생에만 유효.
+# 대형/아파트급은 지도에는 남기되 왜곡된 추정치를 노출하지 않는다.
+APT_AREA = 1000.0     # 공동주택 이 이상 = 아파트급 → 제외
+VALUE_MAX_AREA = 2500.0  # 이 초과 건물은 추정 시장가치·수익률 미표시(대형/비주거)
+DROP_AREA = 20000.0   # 초대형(단지·몰) → 제외
+
+
+def _clean(recs):
+    out = []
+    for b in recs:
+        a = b.get("area") or 0
+        if a > DROP_AREA:
+            continue
+        if b.get("use") == "공동주택" and a > APT_AREA:  # 아파트 제외
+            continue
+        if a > VALUE_MAX_AREA:  # 대형: 다가구 시세로 가치산정 부적절 → 추정 제거
+            b = {**b, "val": None, "yld": None, "em": None, "dep": None, "oversized": True}
+        out.append(b)
+    return out
+
+
 def main():
     buildings, bands, dong_list = [], {}, []
     for f in sorted(glob.glob(str(SCRATCH / "*.json"))):
@@ -28,8 +49,9 @@ def main():
             continue
         d = json.loads(Path(f).read_text(encoding="utf-8"))
         bands[d["dong"]] = d["band"]
-        dong_list.append({"name": d["dong"], "count": d["geocoded"]})
-        buildings += d["buildings"]
+        cleaned = _clean(d["buildings"])
+        dong_list.append({"name": d["dong"], "count": len(cleaned)})
+        buildings += cleaned
 
     cbf = SCRATCH / "city_band.json"
     if cbf.exists():
