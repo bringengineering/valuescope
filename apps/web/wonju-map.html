@@ -52,7 +52,9 @@
   .maperr{position:absolute;inset:auto 16px 16px auto;max-width:360px;z-index:9;background:#F7E4E2;color:#C4362F;border:1px solid #e6b3ad;border-radius:10px;padding:12px 14px;font-size:12.5px;display:none;}
   .maperr.on{display:block;}
   .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;color:var(--muted);z-index:4;background:var(--surface-2);}
-  .iw{font-family:var(--sans);width:362px;background:#fff;border-radius:16px;overflow:hidden;color:#131A26;box-shadow:0 14px 44px rgba(19,26,38,.24),0 3px 10px rgba(19,26,38,.12);}
+  .iw{position:relative;font-family:var(--sans);width:362px;background:#fff;border-radius:16px;overflow:hidden;color:#131A26;box-shadow:0 14px 44px rgba(19,26,38,.24),0 3px 10px rgba(19,26,38,.12);}
+  .iw .close{position:absolute;top:10px;right:11px;z-index:3;width:27px;height:27px;border:0;border-radius:50%;background:rgba(19,26,38,.07);color:#5A6B85;font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+  .iw .close:hover{background:rgba(19,26,38,.14);color:#131A26;}
   .iw .hd{padding:16px 18px 14px;background:linear-gradient(180deg,#F4F7FD,#FFFFFF);border-bottom:1px solid #EDF1F7;}
   .iw .hdtop{display:flex;align-items:center;gap:7px;margin-bottom:8px;flex-wrap:wrap;}
   .iw .badge{font-family:var(--mono);font-size:10.5px;font-weight:700;color:#1B4FD8;background:#E5EDFC;padding:3px 8px;border-radius:6px;letter-spacing:.01em;}
@@ -162,6 +164,7 @@
   const yieldTier=y=>y==null?0:(y>=5?3:y>=4?2:y>=3?1:0);
 
   function openInfo(b,m){infoWindow.setContent(infoHTML(b));infoWindow.open(map,m);setTimeout(()=>window.vsReno(b.id,1),0);}
+  window.vsClose=function(){if(infoWindow)infoWindow.close();};
   let map,infoWindow,searchMarker=null,overlays=[],colorMode="yield";
   const activeTypes=new Set(BUCKETS);let activeDong="";
 
@@ -202,6 +205,7 @@
         <div class="rvout" id="rv-${b.id}"></div></div>`
       : `<div class="est" style="display:block;text-align:left;color:#7A879C">대형·비주거 건물 — 간이 추정(다가구 시세) 대상이 아닙니다. 개별 실사·감정 필요.</div>`;
     return `<div class="iw">
+      <button class="close" onclick="vsClose()" aria-label="닫기">&times;</button>
       <div class="hd"><div class="hdtop"><span class="badge">${esc(b.use)}</span><span class="dong">${esc(b.dong)}</span></div>
         <h2>${esc(b.address)}</h2></div>
       <div class="bd">
@@ -351,6 +355,7 @@
     map=new naver.maps.Map("map",{center:new naver.maps.LatLng(D.center.lat,D.center.lng),zoom:13,minZoom:11,maxZoom:19,mapDataControl:false});
     infoWindow=new naver.maps.InfoWindow({borderWidth:0,backgroundColor:"transparent",pixelOffset:new naver.maps.Point(0,-6)});
     naver.maps.Event.addListener(map,"idle",scheduleRender);
+    naver.maps.Event.addListener(map,"click",()=>infoWindow.close());  // 빈 지도 클릭 → 카드 닫기
     buildUI();setupGeo();render();
   }
   function showErr(m){el("maperr").textContent=m;el("maperr").classList.add("on");el("loading").style.display="none";}
