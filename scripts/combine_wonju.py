@@ -9,6 +9,30 @@ import statistics
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from valuescope import Money  # noqa: E402
+from valuescope.calculators.net_yield import compute_net_yield  # noqa: E402
+
+
+def _age(approval):
+    s = str(approval or "")[:4]
+    if s.isdigit() and 1950 < int(s) < 2026:
+        return 2026 - int(s)
+    return None
+
+
+def _net_yield_pct(em_manwon, val_eok, approval):
+    """실현 수익률(%) — 공실·운영비·노후 자본지출 반영."""
+    if not (em_manwon and val_eok):
+        return None, None
+    res = compute_net_yield(
+        monthly_rent=Money.won(int(round(em_manwon * 1e4))),
+        price=Money.won(int(round(val_eok * 1e8))),
+        age_years=_age(approval),
+    )
+    ny = round(float(res.realizable_yield) * 100, 1) if res.realizable_yield is not None else None
+    return ny, res.assumptions.label
+
 SCRATCH = Path(os.environ.get("WONJU_SCRATCH", "/tmp/wonju"))
 SKIP = {"dong_codes.json", "geocache.json", "city_band.json"}
 
@@ -38,6 +62,9 @@ def _clean(recs):
             continue
         if a > VALUE_MAX_AREA:  # 대형: 다가구 시세로 가치산정 부적절 → 추정 제거
             b = {**b, "val": None, "yld": None, "em": None, "dep": None, "oversized": True}
+        else:
+            ny, age_label = _net_yield_pct(b.get("em"), b.get("val"), b.get("approval"))
+            b = {**b, "nyld": ny, "age_label": age_label}  # 실현 수익률 + 연식구간
         out.append(b)
     return out
 

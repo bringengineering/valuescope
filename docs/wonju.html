@@ -114,7 +114,7 @@
           <div class="chips" id="typeChips"></div></div>
         <div class="grp"><span class="lab">색상 기준</span>
           <div class="chips" id="colorChips">
-            <button class="chip on" data-color="yield">추정 수익률</button>
+            <button class="chip on" data-color="yield">실현 수익률</button>
             <button class="chip" data-color="type">건물 유형</button></div></div>
       </div>
       <div class="legend" id="legend"></div>
@@ -152,8 +152,8 @@
   };
   const BUCKETS=["주택","상가·근생","업무빌딩","숙박·의료","기타"];
   const BUCKET_C={"주택":"#5B8AE8","상가·근생":"#E8952E","업무빌딩":"#2E5BE6","숙박·의료":"#8A54D6","기타":"#7A879C"};
-  const YIELD_T=[{c:"#9FB6DF",l:"~4%"},{c:"#5B8AE8",l:"4~5%"},{c:"#2E5BE6",l:"5~6%"},{c:"#16308A",l:"6%+"}];
-  const yieldTier=y=>y==null?0:(y>=6?3:y>=5?2:y>=4?1:0);
+  const YIELD_T=[{c:"#9FB6DF",l:"~3%"},{c:"#5B8AE8",l:"3~4%"},{c:"#2E5BE6",l:"4~5%"},{c:"#16308A",l:"5%+"}];
+  const yieldTier=y=>y==null?0:(y>=5?3:y>=4?2:y>=3?1:0);
 
   function openInfo(b,m){infoWindow.setContent(infoHTML(b));infoWindow.open(map,m);setTimeout(()=>window.vsReno(b.id,1),0);}
   let map,infoWindow,searchMarker=null,overlays=[],colorMode="yield";
@@ -179,7 +179,10 @@
   };
   function infoHTML(b){
     const hasEst=b.val!=null;
-    const val=hasEst?`${b.val}억`:"—",yld=b.yld!=null?`${b.yld}%`:"—";
+    const val=hasEst?`${b.val}억`:"—";
+    const nyld=b.nyld!=null?`${b.nyld}%`:"—";
+    const grossTxt=b.yld!=null?`총 ${b.yld}%`:"";
+    const ageShort=b.age_label?b.age_label.split("(")[0]:"";
     const estBody=hasEst
       ? `<div class="est"><span>추정 임대료</span><b>보증 ${man(b.dep)} · 월 ${man(b.em)}</b></div>
       <div class="sect"><div class="sect-t">호가 저평가 판정</div>
@@ -198,12 +201,12 @@
       <div class="bd">
         <div class="stats">
           <div class="stat"><div class="k">연면적</div><div class="v">${b.area?b.area+"㎡":"—"}</div></div>
-          <div class="stat"><div class="k">사용승인</div><div class="v">${fmtDate(b.approval)}</div></div>
+          <div class="stat"><div class="k">사용승인</div><div class="v">${fmtDate(b.approval)}${ageShort?`<span style="font-size:10px;font-weight:600;color:#8290A5"> · ${ageShort}</span>`:""}</div></div>
           <div class="stat hl"><div class="k">추정 시장가치</div><div class="v">${val}</div></div>
-          <div class="stat hl"><div class="k">추정 수익률</div><div class="v">${yld}</div></div>
+          <div class="stat hl"><div class="k">실현 수익률</div><div class="v">${nyld}${grossTxt?`<span style="font-size:10px;font-weight:600;color:#8290A5"> ${grossTxt}</span>`:""}</div></div>
         </div>
         ${estBody}
-        <div class="note">※ 추정 임대료·시장가치·리모델링 효과는 가정(신뢰도 C~D). 확정 감정가·공사견적·대출 가능성 아님. 실제 견적·임대현황 입력 시 정밀화.</div>
+        <div class="note">※ <b>실현 수익률</b> = 공실·운영비·노후 자본지출 반영(연식 기반 가정, 신뢰도 D). <b>총 수익률</b>은 임대료÷가격(비용 미반영). 추정치는 확정 감정가·공사견적·대출 가능성 아님.</div>
       </div></div>`;
   }
   // 리모델링 프리셋(가정): [라벨, ㎡당 투입 만원, 임대료 상승률]
@@ -236,7 +239,7 @@
       `</div>`+
       `<div class="row" style="margin-top:8px"><span class="k">임대수입 회수기간</span><span class="v">${payback==null?"—":payback.toFixed(1)+"년"}</span></div>`;
   };
-  function color(b){return colorMode==="type"?BUCKET_C[BUCKET(b.use)]:YIELD_T[yieldTier(b.yld)].c;}
+  function color(b){return colorMode==="type"?BUCKET_C[BUCKET(b.use)]:YIELD_T[yieldTier(b.nyld)].c;}
 
   // ---- 클러스터 렌더링 ----
   function clear(){overlays.forEach(o=>o.setMap(null));overlays=[];}
@@ -301,7 +304,7 @@
   }
   function buildLegend(){
     const arr=colorMode==="type"?BUCKETS.map(t=>({c:BUCKET_C[t],l:t})):YIELD_T.map(t=>({c:t.c,l:t.l}));
-    el("legend").innerHTML=`<span style="color:var(--muted)">${colorMode==="type"?"유형":"추정 수익률"}</span>`+
+    el("legend").innerHTML=`<span style="color:var(--muted)">${colorMode==="type"?"유형":"실현 수익률"}</span>`+
       arr.map(t=>`<span class="lg"><span class="sw" style="background:${t.c}"></span>${t.l}</span>`).join("");
   }
   function setupGeo(){
