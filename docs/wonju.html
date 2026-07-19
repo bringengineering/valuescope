@@ -75,6 +75,8 @@
   .iw .sect{margin-top:16px;}
   .iw .sect-t{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:#8794A8;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
   .iw .sect-t .tag{font-weight:700;color:#8A6D18;background:#FBF1D8;padding:1px 6px;border-radius:5px;letter-spacing:.02em;}
+  .iw .naverbtn{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:11px;text-decoration:none;font-size:12.5px;font-weight:700;color:#fff;background:#03C75A;border-radius:10px;padding:10px 12px;}
+  .iw .naverbtn:hover{background:#02b350;}
   .iw .vbox label{font-size:12.5px;font-weight:700;color:#131A26;display:flex;align-items:center;gap:9px;}
   .iw .vbox input{width:104px;font:inherit;font-family:var(--mono);font-size:16px;font-weight:800;padding:9px 11px;border:1.5px solid #C7D3E8;border-radius:10px;text-align:right;color:#131A26;}
   .iw .vbox input:focus{outline:none;border-color:#1B4FD8;box-shadow:0 0 0 3px rgba(27,79,216,.14);}
@@ -195,8 +197,9 @@
     const estBody=hasEst
       ? `<div class="est"><span>추정 임대료</span><b>보증 ${man(b.dep)} · 월 ${man(b.em)}</b></div>
       <div class="sect"><div class="sect-t">호가 저평가 판정</div>
+        <a class="naverbtn" href="https://m.land.naver.com/search/result/${encodeURIComponent(b.address)}" target="_blank" rel="noopener noreferrer">네이버 부동산에서 이 주소 매물 보기 →</a>
         <div class="vbox"><label>호가 입력 <input type="number" inputmode="decimal" min="0" step="0.1" placeholder="예 6.5" oninput="vsVerdict('${b.id}',this.value)"> 억</label></div>
-        <div class="vd" id="vd-${b.id}">호가를 넣으면 해당 동 실거래 시세 대비 저평가 여부를 판정합니다.</div></div>
+        <div class="vd" id="vd-${b.id}">네이버에서 호가를 확인해 입력하면, 해당 동 실거래 시세 대비 저평가 여부를 판정합니다.</div></div>
       <div class="sect"><div class="sect-t">리모델링 가치상승 <span class="tag">추정</span></div>
         <div class="rvtabs" id="rvt-${b.id}">
           <button data-t="0" onclick="vsReno('${b.id}',0)">경량</button>
