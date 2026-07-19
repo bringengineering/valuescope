@@ -52,32 +52,43 @@
   .maperr{position:absolute;inset:auto 16px 16px auto;max-width:360px;z-index:9;background:#F7E4E2;color:#C4362F;border:1px solid #e6b3ad;border-radius:10px;padding:12px 14px;font-size:12.5px;display:none;}
   .maperr.on{display:block;}
   .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;color:var(--muted);z-index:4;background:var(--surface-2);}
-  .iw{font-family:var(--sans);width:344px;padding:18px 20px;color:#131A26;}
-  .iw h2{margin:0;font-size:18px;line-height:1.25;letter-spacing:-.01em;}
-  .iw .ty{font-family:var(--mono);font-size:12.5px;color:#5B8AE8;font-weight:700;margin-top:4px;}
-  .iw .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;margin:15px 0;}
-  .iw .c .k{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:#7A879C;}
-  .iw .c .v{font-family:var(--mono);font-size:17px;font-weight:800;margin-top:3px;letter-spacing:-.01em;}
-  .iw .est{background:#EEF1F7;border-radius:11px;padding:12px 14px;font-size:13.5px;}
-  .iw .est b{font-family:var(--mono);font-size:14.5px;}
-  .iw .vbox{margin-top:14px;border-top:1px dashed #CBD3E1;padding-top:14px;}
-  .iw .vbox label{font-size:13px;font-weight:700;color:#131A26;display:flex;align-items:center;gap:9px;}
-  .iw .vbox input{width:96px;font:inherit;font-family:var(--mono);font-size:16px;font-weight:700;padding:8px 10px;border:1.5px solid #5B8AE8;border-radius:9px;text-align:right;}
-  .iw .vd{margin-top:10px;font-family:var(--mono);font-size:13px;line-height:1.5;padding:10px 13px;border-radius:9px;background:#F3F5FA;color:#7A879C;}
-  .iw .vd b{font-size:15px;}
-  .iw .vd-good{background:#E3F2E8;color:#1B7A3D;}.iw .vd-mid{background:#FBF3DF;color:#8A6D18;}.iw .vd-bad{background:#F7E4E2;color:#C4362F;}
-  .iw .rvbox{margin-top:14px;border-top:1px dashed #CBD3E1;padding-top:13px;}
-  .iw .rvhead{font-size:13px;font-weight:800;color:#131A26;display:flex;align-items:center;gap:6px;}
-  .iw .rvhead span{font-family:var(--mono);font-size:9.5px;font-weight:700;color:#8A6D18;background:#FBF3DF;padding:2px 6px;border-radius:6px;}
-  .iw .rvtabs{display:flex;gap:5px;margin:9px 0;}
-  .iw .rvtabs button{flex:1;font:inherit;font-size:11.5px;font-weight:700;cursor:pointer;padding:6px 4px;border-radius:8px;border:1px solid #CBD3E1;background:#fff;color:#46536B;}
-  .iw .rvtabs button.on{background:#1B4FD8;border-color:#1B4FD8;color:#fff;}
-  .iw .rvout{font-family:var(--mono);font-size:12px;line-height:1.7;background:#EEF1F7;border-radius:9px;padding:11px 13px;}
-  .iw .rvout .row{display:flex;justify-content:space-between;gap:10px;}
-  .iw .rvout .k{color:#7A879C;}.iw .rvout .v{font-weight:700;}
-  .iw .rvout .hi{margin-top:5px;padding-top:6px;border-top:1px solid #D6DEEB;}
-  .iw .rvout .up{color:#1B7A3D;}.iw .rvout .dn{color:#C4362F;}
-  .iw .note{font-size:11px;line-height:1.5;color:#7A879C;margin-top:11px;}
+  .iw{font-family:var(--sans);width:362px;background:#fff;border-radius:16px;overflow:hidden;color:#131A26;box-shadow:0 14px 44px rgba(19,26,38,.24),0 3px 10px rgba(19,26,38,.12);}
+  .iw .hd{padding:16px 18px 14px;background:linear-gradient(180deg,#F4F7FD,#FFFFFF);border-bottom:1px solid #EDF1F7;}
+  .iw .hdtop{display:flex;align-items:center;gap:7px;margin-bottom:8px;flex-wrap:wrap;}
+  .iw .badge{font-family:var(--mono);font-size:10.5px;font-weight:700;color:#1B4FD8;background:#E5EDFC;padding:3px 8px;border-radius:6px;letter-spacing:.01em;}
+  .iw .dong{font-family:var(--mono);font-size:11px;color:#8290A5;}
+  .iw h2{margin:0;font-size:17px;line-height:1.32;letter-spacing:-.012em;font-weight:800;}
+  .iw .bd{padding:15px 18px 16px;}
+  .iw .stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .iw .stat{background:#F4F6FB;border-radius:11px;padding:10px 12px;}
+  .iw .stat.hl{background:#E9F0FE;}
+  .iw .stat .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:#8794A8;}
+  .iw .stat.hl .k{color:#3B67D6;}
+  .iw .stat .v{font-family:var(--mono);font-size:18px;font-weight:800;margin-top:3px;letter-spacing:-.02em;color:#131A26;}
+  .iw .stat.hl .v{color:#1B4FD8;}
+  .iw .est{margin-top:11px;display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:12.5px;color:#5A6B85;background:#F4F6FB;border-radius:10px;padding:11px 13px;}
+  .iw .est b{font-family:var(--mono);font-size:13px;color:#131A26;font-weight:700;}
+  .iw .sect{margin-top:16px;}
+  .iw .sect-t{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:#8794A8;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+  .iw .sect-t .tag{font-weight:700;color:#8A6D18;background:#FBF1D8;padding:1px 6px;border-radius:5px;letter-spacing:.02em;}
+  .iw .vbox label{font-size:12.5px;font-weight:700;color:#131A26;display:flex;align-items:center;gap:9px;}
+  .iw .vbox input{width:104px;font:inherit;font-family:var(--mono);font-size:16px;font-weight:800;padding:9px 11px;border:1.5px solid #C7D3E8;border-radius:10px;text-align:right;color:#131A26;}
+  .iw .vbox input:focus{outline:none;border-color:#1B4FD8;box-shadow:0 0 0 3px rgba(27,79,216,.14);}
+  .iw .vd{margin-top:11px;font-family:var(--mono);font-size:12.5px;line-height:1.55;padding:11px 13px;border-radius:10px;background:#F4F6FB;color:#7A879C;}
+  .iw .vd b{font-size:14px;}
+  .iw .vd-good{background:#E4F4EA;color:#137A3C;}.iw .vd-mid{background:#FCF3DC;color:#8A6D18;}.iw .vd-bad{background:#FBE6E4;color:#C4362F;}
+  .iw .rvtabs{display:flex;gap:0;background:#EDF1F7;border-radius:11px;padding:3px;}
+  .iw .rvtabs button{flex:1;font:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:7px 4px;border-radius:8px;border:0;background:transparent;color:#5A6B85;}
+  .iw .rvtabs button.on{background:#fff;color:#1B4FD8;box-shadow:0 1px 3px rgba(19,26,38,.16);}
+  .iw .rvout{margin-top:12px;font-family:var(--mono);font-size:12.5px;}
+  .iw .rvout .row{display:flex;justify-content:space-between;gap:10px;padding:4px 1px;}
+  .iw .rvout .row .k{color:#8290A5;}.iw .rvout .row .v{font-weight:700;color:#131A26;}
+  .iw .rvout .punch{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .iw .rvout .pc{border-radius:11px;padding:10px 8px;text-align:center;}
+  .iw .rvout .pc .pk{font-size:9px;text-transform:uppercase;letter-spacing:.05em;opacity:.8;}
+  .iw .rvout .pc .pv{font-size:17px;font-weight:800;margin-top:3px;letter-spacing:-.01em;}
+  .iw .rvout .up{background:#E4F4EA;color:#137A3C;}.iw .rvout .dn{background:#FBE6E4;color:#C4362F;}
+  .iw .note{margin-top:14px;font-size:10.5px;line-height:1.5;color:#98A3B4;}
   @media (max-width:820px){.main{grid-template-columns:1fr;grid-template-rows:auto 1fr;}.side{max-height:44vh;}}
 </style>
 </head>
@@ -170,25 +181,30 @@
     const hasEst=b.val!=null;
     const val=hasEst?`${b.val}억`:"—",yld=b.yld!=null?`${b.yld}%`:"—";
     const estBody=hasEst
-      ? `<div class="est">추정 임대료 · <b>월세 보증 ${man(b.dep)}/월 ${man(b.em)}</b></div>
-      <div class="vbox"><label>호가 입력 <input type="number" inputmode="decimal" min="0" step="0.1" placeholder="예 6.5" oninput="vsVerdict('${b.id}',this.value)"> 억</label>
+      ? `<div class="est"><span>추정 임대료</span><b>보증 ${man(b.dep)} · 월 ${man(b.em)}</b></div>
+      <div class="sect"><div class="sect-t">호가 저평가 판정</div>
+        <div class="vbox"><label>호가 입력 <input type="number" inputmode="decimal" min="0" step="0.1" placeholder="예 6.5" oninput="vsVerdict('${b.id}',this.value)"> 억</label></div>
         <div class="vd" id="vd-${b.id}">호가를 넣으면 해당 동 실거래 시세 대비 저평가 여부를 판정합니다.</div></div>
-      <div class="rvbox"><div class="rvhead">리모델링 가치상승 <span>추정</span></div>
+      <div class="sect"><div class="sect-t">리모델링 가치상승 <span class="tag">추정</span></div>
         <div class="rvtabs" id="rvt-${b.id}">
           <button data-t="0" onclick="vsReno('${b.id}',0)">경량</button>
           <button data-t="1" class="on" onclick="vsReno('${b.id}',1)">표준</button>
           <button data-t="2" onclick="vsReno('${b.id}',2)">전면</button></div>
         <div class="rvout" id="rv-${b.id}"></div></div>`
-      : `<div class="est" style="color:#7A879C">대형·비주거 건물 — 간이 추정(다가구 시세) 대상이 아닙니다. 개별 실사·감정 필요.</div>`;
-    return `<div class="iw"><h2>${esc(b.address)}</h2><div class="ty">${esc(b.use)} · ${esc(b.dong)}</div>
-      <div class="grid">
-        <div class="c"><div class="k">연면적</div><div class="v">${b.area?b.area+"㎡":"—"}</div></div>
-        <div class="c"><div class="k">사용승인</div><div class="v">${fmtDate(b.approval)}</div></div>
-        <div class="c"><div class="k">추정 시장가치</div><div class="v">${val}</div></div>
-        <div class="c"><div class="k">추정 수익률</div><div class="v">${yld}</div></div>
-      </div>
-      ${estBody}
-      <div class="note">※ 추정 임대료·시장가치·리모델링 효과는 가정(신뢰도 C~D). 확정 감정가·공사견적·대출 가능성 아님. 실제 견적·임대현황 입력 시 정밀화.</div></div>`;
+      : `<div class="est" style="display:block;text-align:left;color:#7A879C">대형·비주거 건물 — 간이 추정(다가구 시세) 대상이 아닙니다. 개별 실사·감정 필요.</div>`;
+    return `<div class="iw">
+      <div class="hd"><div class="hdtop"><span class="badge">${esc(b.use)}</span><span class="dong">${esc(b.dong)}</span></div>
+        <h2>${esc(b.address)}</h2></div>
+      <div class="bd">
+        <div class="stats">
+          <div class="stat"><div class="k">연면적</div><div class="v">${b.area?b.area+"㎡":"—"}</div></div>
+          <div class="stat"><div class="k">사용승인</div><div class="v">${fmtDate(b.approval)}</div></div>
+          <div class="stat hl"><div class="k">추정 시장가치</div><div class="v">${val}</div></div>
+          <div class="stat hl"><div class="k">추정 수익률</div><div class="v">${yld}</div></div>
+        </div>
+        ${estBody}
+        <div class="note">※ 추정 임대료·시장가치·리모델링 효과는 가정(신뢰도 C~D). 확정 감정가·공사견적·대출 가능성 아님. 실제 견적·임대현황 입력 시 정밀화.</div>
+      </div></div>`;
   }
   // 리모델링 프리셋(가정): [라벨, ㎡당 투입 만원, 임대료 상승률]
   const RENO=[["경량 (도장·조명·공용부)",15,0.08],["표준 (내부 리모델링)",35,0.18],["전면 (구조·설비·외관)",70,0.32]];
@@ -214,9 +230,11 @@
       `<div class="row"><span class="k">투입비 (${cpm2}만/㎡)</span><span class="v">${eok(cost)}</span></div>`+
       `<div class="row"><span class="k">예상 월세</span><span class="v">${b.em.toLocaleString()} → ${emAfter.toLocaleString()}만</span></div>`+
       `<div class="row"><span class="k">시장가치</span><span class="v">${eok(valBefore)} → ${eok(valAfter)}</span></div>`+
-      `<div class="row hi"><span class="k">순증분 (가치−투입)</span><span class="v ${cls}">${net>=0?"+":""}${eok(net)}</span></div>`+
-      `<div class="row"><span class="k">투입 대비 ROI</span><span class="v ${cls}">${roi==null?"—":(net>=0?"+":"")+roi.toFixed(0)+"%"}</span></div>`+
-      `<div class="row"><span class="k">임대수입 회수기간</span><span class="v">${payback==null?"—":payback.toFixed(1)+"년"}</span></div>`;
+      `<div class="punch">`+
+        `<div class="pc ${cls}"><div class="pk">순증분 (가치−투입)</div><div class="pv">${net>=0?"+":""}${eok(net)}</div></div>`+
+        `<div class="pc ${cls}"><div class="pk">투입 대비 ROI</div><div class="pv">${roi==null?"—":(net>=0?"+":"")+roi.toFixed(0)+"%"}</div></div>`+
+      `</div>`+
+      `<div class="row" style="margin-top:8px"><span class="k">임대수입 회수기간</span><span class="v">${payback==null?"—":payback.toFixed(1)+"년"}</span></div>`;
   };
   function color(b){return colorMode==="type"?BUCKET_C[BUCKET(b.use)]:YIELD_T[yieldTier(b.yld)].c;}
 
