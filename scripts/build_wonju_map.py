@@ -212,6 +212,10 @@ def main():
             dep = round(dpm2 * area) if (area and dpm2) else None
             srate = (large_med if (area and area >= LARGE_M2) else all_med)
             val = round(area * srate) if (area and srate) else None
+            # 세대수: 유형별로 세대(hhld)/가구(fmly)/호(ho) 중 채워진 값
+            counts = {"세대": b.household_cnt or 0, "가구": b.family_cnt or 0, "호": b.unit_cnt or 0}
+            units = max(counts.values())
+            unit_kind = max(counts, key=counts.get) if units > 0 else None
             recs.append({
                 "id": f"{bj}-{i}",
                 "name": b.building_name or "",
@@ -222,6 +226,7 @@ def main():
                 "area": round(area, 1) if area else None,
                 "floors": b.floors_above,
                 "approval": b.approval_date,
+                "units": units or None, "unit_kind": unit_kind,
                 "em": em, "dep": dep,
                 "val": round(val / 1e4, 1) if val else None,  # 억
                 "yld": (round(em * 12 / val * 100, 1) if (em and val) else None),

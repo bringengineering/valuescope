@@ -3,7 +3,7 @@
 from .amortization import DebtSchedule, PaymentRow, build_schedule
 from .cashflow import ProjectionInputs, ProjectionResult, YearRow, project
 from .irr import equity_multiple, irr, npv
-from .valueadd import RenovationResult, simulate_renovation
+from .valueadd import RenovationResult, RenovationAnalysis, simulate_renovation, analyze_renovation
 from .net_yield import (
     NetYieldResult,
     OperatingAssumptions,
@@ -25,6 +25,8 @@ __all__ = [
     "equity_multiple",
     "simulate_renovation",
     "RenovationResult",
+    "RenovationAnalysis",
+    "analyze_renovation",
     "compute_net_yield",
     "NetYieldResult",
     "OperatingAssumptions",

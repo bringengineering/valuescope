@@ -104,3 +104,50 @@ def test_rejects_bad_assumptions():
             value_before=Money.won(100_000_000), cost_per_m2=Money.won(100_000),
             rent_uplift=Decimal("0.1"), opex_ratio=Decimal("1.5"),
         )
+
+
+# --- 상세 밸류애드 분석 -----------------------------------------------------
+from valuescope.calculators.valueadd import analyze_renovation  # noqa: E402
+
+
+def test_analyze_renovation_hand_calc():
+    # 노후(35년) → 표준 리모델링으로 유효 15년, 임대 +18%
+    r = analyze_renovation(
+        monthly_rent=Money.won(3_000_000), area_m2=Decimal("400"),
+        value_before=Money.won(800_000_000), cost_per_m2=Money.won(350_000),
+        rent_uplift=Decimal("0.18"), age_before=35, age_after=15, hold_years=5,
+    )
+    assert r.cost == Money.won(140_000_000)
+    assert r.annual_rent_gain == Money.won(6_480_000)          # (354−300)만×12
+    assert r.value_after == Money.won(944_000_000)
+    assert r.value_gain == Money.won(144_000_000)
+    # 실현 순현금: 노후 15,660,000 → 리모델링후 27,259,416
+    assert r.net_noi_before == Money.won(15_660_000)
+    assert r.net_noi_after == Money.won(27_259_416)
+    assert r.annual_net_gain == Money.won(11_599_416)
+    assert r.net_gain == Money.won(4_000_000)                  # 가치 관점 순증분
+    # 투입 대비 임대수익 ROI가 가치 ROI보다 크다(노후개선 효과)
+    assert r.income_roi > r.value_roi
+    # 리모델링이 실현 수익률을 끌어올린다
+    assert r.realized_yield_after > r.realized_yield_before
+    # 5년 종합수익 = 가치상승분 + 5×연실현증가 − 투입
+    assert r.total_profit == Money.won(144_000_000) + Money.won(11_599_416) * 5 - Money.won(140_000_000)
+
+
+def test_analyze_income_roi_formula():
+    r = analyze_renovation(
+        monthly_rent=Money.won(2_000_000), area_m2=Decimal("300"),
+        value_before=Money.won(500_000_000), cost_per_m2=Money.won(200_000),
+        rent_uplift=Decimal("0.15"), age_before=40, age_after=20,
+    )
+    assert r.income_roi == r.annual_net_gain.amount / r.cost.amount
+    assert r.payback_years == r.cost.amount / r.annual_net_gain.amount
+
+
+def test_analyze_zero_cost_none_roi():
+    r = analyze_renovation(
+        monthly_rent=Money.won(1_000_000), area_m2=Decimal("100"),
+        value_before=Money.won(200_000_000), cost_per_m2=Money.won(0),
+        rent_uplift=Decimal("0.1"), age_before=30, age_after=20,
+    )
+    assert r.value_roi is None and r.income_roi is None
