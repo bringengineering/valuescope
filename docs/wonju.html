@@ -108,6 +108,7 @@
     <div class="brand"><span class="logo">BRING <b>ValueScope</b></span><span class="sub">원주 건물 지도</span></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <a class="pill" href="./index.html">← 딜 지도</a>
+      <a class="pill" href="./valueup.html">🏗 밸류업 실증</a>
       <span class="pill" id="srcPill">건물 —</span>
       <span class="pill">추정 · 신뢰도 C~D</span>
     </div>
@@ -194,10 +195,11 @@
     const nyld=b.nyld!=null?`${b.nyld}%`:"—";
     const grossTxt=b.yld!=null?`총 ${b.yld}%`:"";
     const ageShort=b.age_label?b.age_label.split("(")[0]:"";
+    const nvQ=encodeURIComponent((b.address||"").replace(/^강원특별자치도\s*/,"").replace(/\s*\([^)]*\)\s*$/,"").trim());
     const estBody=hasEst
       ? `<div class="est"><span>추정 임대료</span><b>보증 ${man(b.dep)} · 월 ${man(b.em)}</b></div>
       <div class="sect"><div class="sect-t">호가 저평가 판정</div>
-        <a class="naverbtn" href="https://m.land.naver.com/search/result/${encodeURIComponent(b.address)}" target="_blank" rel="noopener noreferrer">네이버 부동산에서 이 주소 매물 보기 →</a>
+        <a class="naverbtn" href="https://m.land.naver.com/search/result/${nvQ}" target="_blank" rel="noopener noreferrer">네이버 부동산에서 이 주소 매물 보기 →</a>
         <div class="vbox"><label>호가 입력 <input type="number" inputmode="decimal" min="0" step="0.1" placeholder="예 6.5" oninput="vsVerdict('${b.id}',this.value)"> 억</label></div>
         <div class="vd" id="vd-${b.id}">네이버에서 호가를 확인해 입력하면, 해당 동 실거래 시세 대비 저평가 여부를 판정합니다.</div></div>
       <div class="sect"><div class="sect-t">리모델링 가치상승 <span class="tag">추정</span></div>

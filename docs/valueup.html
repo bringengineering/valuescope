@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BRING ValueScope — 건물 밸류업 실증</title>
+<style>
+  :root{
+    --sans:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",Menlo,Consolas,monospace;
+    --bg:#EEF1F7;--surface:#FFFFFF;--surface-2:#F4F6FB;--ink:#131A26;--ink-2:#46536B;--muted:#7A879C;
+    --line:#E4E9F1;--line-strong:#CBD3E1;--accent:#1B4FD8;--up:#137A3C;--dn:#C4362F;
+    --shadow:0 1px 2px rgba(19,26,38,.05),0 10px 30px rgba(19,26,38,.07);
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0B0F17;--surface:#131A27;--surface-2:#1A2231;--ink:#EAF0F8;--ink-2:#A9B6CC;--muted:#6E7C93;
+    --line:#26313F;--line-strong:#33404F;--accent:#5385F0;--up:#4CB37A;--dn:#F0857C;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 34px rgba(0,0,0,.4);
+  }}
+  *{box-sizing:border-box;} body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:940px;margin:0 auto;padding:22px 18px 80px;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .brand{font-weight:800;font-size:17px;}.brand b{color:var(--accent);}
+  .brand .sub{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:8px;font-weight:500;}
+  .pill{font-family:var(--mono);font-size:11px;padding:4px 9px;border-radius:999px;border:1px solid var(--line-strong);color:var(--ink-2);text-decoration:none;}
+  a.pill{font-weight:700;border-color:var(--accent);color:var(--accent);}
+  .hero{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow);margin-bottom:18px;}
+  .hero h1{margin:0 0 6px;font-size:20px;letter-spacing:-.02em;}
+  .hero p{margin:0;color:var(--ink-2);font-size:13.5px;line-height:1.6;}
+  .prof{display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:14px;}
+  .prof .f{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2);background:var(--surface-2);border-radius:9px;padding:7px 11px;}
+  .prof .f label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:19px 21px;box-shadow:var(--shadow);margin-bottom:18px;}
+  .card h2{margin:0 0 4px;font-size:15px;letter-spacing:-.01em;}
+  .card .desc{margin:0 0 15px;font-size:12.5px;color:var(--muted);line-height:1.5;}
+  input,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:6px 9px;}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(27,79,216,.13);}
+  input.num{width:92px;font-family:var(--mono);text-align:right;font-weight:700;}
+  input.txt{width:150px;}
+  .io{display:grid;grid-template-columns:1fr auto auto;gap:9px 14px;align-items:center;}
+  .io .h{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:right;}
+  .io .lab{font-size:12.5px;color:var(--ink-2);}
+  .io .lab small{color:var(--muted);}
+  /* 핵심 숫자 표 */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line);}
+  th:first-child,td:first-child{text-align:left;}
+  thead th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:2px solid var(--line-strong);}
+  td.v{font-family:var(--mono);font-weight:700;font-variant-numeric:tabular-nums;}
+  td.chg{font-family:var(--mono);font-weight:800;}
+  .up{color:var(--up);}.dn{color:var(--dn);}.flat{color:var(--muted);}
+  tr.hl td{background:var(--surface-2);}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px;}
+  .kpi{background:var(--surface-2);border-radius:13px;padding:14px 16px;}
+  .kpi .k{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+  .kpi .val{font-family:var(--mono);font-size:24px;font-weight:800;letter-spacing:-.02em;margin-top:4px;}
+  .kpi .note{font-size:11px;color:var(--muted);margin-top:2px;}
+  /* 진단 3분류 */
+  .diag{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;}
+  .dcol h3{margin:0 0 8px;font-size:13px;display:flex;align-items:center;gap:7px;}
+  .dcol h3 .dot{width:9px;height:9px;border-radius:50%;}
+  .dcol textarea{width:100%;min-height:96px;font-size:12.5px;line-height:1.6;resize:vertical;}
+  .stage{display:flex;flex-direction:column;gap:9px;}
+  .stg{border:1px solid var(--line);border-radius:11px;padding:12px 14px;}
+  .stg .st{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);}
+  .stg textarea{width:100%;min-height:52px;margin-top:7px;font-size:12.5px;line-height:1.55;resize:vertical;}
+  .content{display:flex;flex-direction:column;gap:8px;}
+  .ep{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;}
+  .ep input[type=checkbox]{margin-top:3px;width:17px;height:17px;accent-color:var(--accent);}
+  .ep .t b{font-size:13px;}.ep .t p{margin:2px 0 0;font-size:12px;color:var(--muted);}
+  .bar{display:flex;gap:9px;flex-wrap:wrap;margin-top:6px;}
+  .btn{font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;border-radius:9px;padding:9px 15px;border:1px solid var(--accent);background:var(--accent);color:#fff;}
+  .btn.ghost{background:transparent;color:var(--accent);}
+  .note-box{font-size:12px;color:var(--muted);line-height:1.6;background:var(--surface-2);border-radius:11px;padding:12px 14px;margin-top:14px;}
+  .honest{border-left:3px solid var(--accent);padding:10px 14px;background:var(--surface-2);border-radius:0 10px 10px 0;font-size:12.5px;color:var(--ink-2);line-height:1.6;margin-top:14px;}
+  @media (max-width:560px){.io{grid-template-columns:1fr auto auto;gap:8px 8px;}input.num{width:74px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">BRING <b>ValueScope</b><span class="sub">건물 밸류업 실증</span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="pill" href="./wonju.html">← 원주 지도</a><span class="pill" id="savePill">자동저장</span></div>
+  </header>
+
+  <div class="hero">
+    <h1 id="heroTitle">원주 A동 12세대 다가구 — 1호 실증</h1>
+    <p><b>“건물에 얼마를 투자했고, 그 결과 얼마를 더 벌거나 덜 쓰게 되었는가?”</b><br>
+    낡은 건물도 제대로 분석·운영하면 더 돈 되는 자산이 되는지, 숫자를 숨기지 않고 공개해 증명합니다.</p>
+    <div class="prof">
+      <div class="f"><label>지역</label><input class="txt" id="p_region" style="width:120px" value="원주시 A동"></div>
+      <div class="f"><label>세대수</label><input class="num" id="p_units" style="width:60px" value="12"></div>
+      <div class="f"><label>연식</label><input class="txt" id="p_year" style="width:76px" value="1998년"></div>
+      <div class="f"><label>공개범위</label><span style="font-family:var(--mono);font-size:11px">지역·세대수만 (주소·건물주 비공개)</span></div>
+    </div>
+  </div>
+
+  <!-- 입력: 개선 전 / 개선 후 -->
+  <div class="card">
+    <h2>운영 데이터 입력</h2>
+    <p class="desc">개선 전은 최근 6개월 실측, 개선 후는 1·3·6개월 뒤 측정값을 넣습니다. 금액 단위: 만원 / 월 기준.</p>
+    <div class="io">
+      <div></div><div class="h">개선 전</div><div class="h">개선 후</div>
+      <div class="lab">입주 세대수 <small>(전체 중)</small></div><input class="num" id="b_occ" value="10"><input class="num" id="a_occ" value="11">
+      <div class="lab">세대 평균 월세 <small>만원</small></div><input class="num" id="b_rent" value="35"><input class="num" id="a_rent" value="35">
+      <div class="lab">청소·소모품 <small>만원/월</small></div><input class="num" id="b_c_clean" value="12"><input class="num" id="a_c_clean" value="12">
+      <div class="lab">수리·정비 <small>만원/월</small></div><input class="num" id="b_c_fix" value="28"><input class="num" id="a_c_fix" value="16">
+      <div class="lab">공용관리(전기·수도 등) <small>만원/월</small></div><input class="num" id="b_c_util" value="18"><input class="num" id="a_c_util" value="16">
+      <div class="lab">중개·공실정비 <small>만원/월</small></div><input class="num" id="b_c_lease" value="10"><input class="num" id="a_c_lease" value="6">
+      <div class="lab">평균 공실기간 <small>일</small></div><input class="num" id="b_vac" value="60"><input class="num" id="a_vac" value="30">
+      <div class="lab">월 민원 <small>건</small></div><input class="num" id="b_comp" value="8"><input class="num" id="a_comp" value="5">
+    </div>
+    <div class="io" style="margin-top:14px;grid-template-columns:1fr auto">
+      <div class="lab" style="font-weight:700;color:var(--ink)">누적 투자비 <small>만원</small></div><input class="num" id="invest" value="350" style="width:110px">
+    </div>
+  </div>
+
+  <!-- 핵심 숫자 표 -->
+  <div class="card">
+    <h2>핵심 숫자 — 개선 전 / 후 / 변화</h2>
+    <p class="desc">모든 콘텐츠에 이 표를 고정으로 공개합니다. 아래 숫자는 결정론 엔진(ENGINE)과 동일 공식으로 자동 계산됩니다.</p>
+    <div style="overflow-x:auto"><table id="kpiTable">
+      <thead><tr><th>항목</th><th>개선 전</th><th>개선 후</th><th>변화</th></tr></thead>
+      <tbody id="kpiBody"></tbody>
+    </table></div>
+    <div class="kpis" id="kpiCards"></div>
+    <div class="honest" id="honest"></div>
+  </div>
+
+  <!-- 현장 진단 -->
+  <div class="card">
+    <h2>현장 진단</h2>
+    <p class="desc">문제를 세 가지로 나눕니다. 한 줄에 하나씩 적으세요.</p>
+    <div class="diag">
+      <div class="dcol"><h3><span class="dot" style="background:var(--dn)"></span>반드시 고칠 문제</h3>
+        <textarea id="d_must">누수·전기 점검
+현관 잠금장치 고장
+계단 미끄럼</textarea></div>
+      <div class="dcol"><h3><span class="dot" style="background:#E8952E"></span>수익을 높일 문제</h3>
+        <textarea id="d_income">어두운 입구·복도 조명
+낡은 우편함
+지저분한 공용부
+공실 내부 도배·청소</textarea></div>
+      <div class="dcol"><h3><span class="dot" style="background:var(--muted)"></span>나중에 해도 될 문제</h3>
+        <textarea id="d_later">전면 리모델링
+외벽 도장
+조경 고급화</textarea></div>
+    </div>
+  </div>
+
+  <!-- 투자 단계 -->
+  <div class="card">
+    <h2>단계별 투자계획</h2>
+    <p class="desc">한 번에 다 하지 않고 금액대로 나눕니다. 1호 실증은 300~500만원 이내로.</p>
+    <div class="stage">
+      <div class="stg"><div class="st">1단계 · 100만원 이하</div><textarea id="s1">조명 교체, 안내판 정비, 공용부 청소, 부분 도장, 우편함 정리</textarea></div>
+      <div class="stg"><div class="st">2단계 · 100만~500만원</div><textarea id="s2">입구 디자인 개선, 복도·계단 도장, 공실 부분 리모델링, 사이니지</textarea></div>
+      <div class="stg"><div class="st">3단계 · 500만원 이상 (후순위)</div><textarea id="s3">창호·외벽, 전체 공실 리모델링, 방수·설비</textarea></div>
+    </div>
+  </div>
+
+  <!-- 콘텐츠 편 -->
+  <div class="card">
+    <h2>콘텐츠 공개 순서</h2>
+    <p class="desc">주인공은 브링이 아니라 건물의 변화. 결과가 나빠도 그대로 공개합니다.</p>
+    <div class="content" id="contentList"></div>
+    <div class="bar"><button class="btn ghost" id="resetBtn">샘플로 초기화</button></div>
+    <div class="note-box">
+      <b>무료 진입 서비스 — 건물 밸류업 진단</b><br>
+      현재 공실·임대수입 분석 · 주요 유지관리 문제 확인 · 우선 투자항목 3개 제안 · 예상 투자비와 회수기간 제시.
+      이후 필요한 건물만 브링의 관리·공사기획·공실개선으로 연결.
+    </div>
+  </div>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const KEY="bring_valueup_v1";
+  const man=v=>v.toLocaleString()+"만";
+  const won=v=>v>=10000?(v/10000).toFixed(2).replace(/\.?0+$/,"")+"억":v.toLocaleString()+"만";
+  const EPS=[
+    ["건물 공개","이 건물은 지금 어디에서 돈이 새고 있을까요?"],
+    ["원가·손익 분석","월세는 OOO만원인데 실제 남는 돈은 얼마일까요?"],
+    ["투자계획","300만원을 어디부터 투자해야 할까요?"],
+    ["공사 과정","견적 비교 · 작업 전후 · 실제 공사비"],
+    ["1개월 후 결과","문의 수 · 공실 · 입주자 반응 · 민원 변화"],
+    ["3~6개월 후 결과","월세 · 공실기간 · 유지관리비 · 회수율"],
+  ];
+  // 입력 필드 목록(저장/복원)
+  const FIELDS=["p_region","p_units","p_year","b_occ","a_occ","b_rent","a_rent",
+    "b_c_clean","a_c_clean","b_c_fix","a_c_fix","b_c_util","a_c_util","b_c_lease","a_c_lease",
+    "b_vac","a_vac","b_comp","a_comp","invest","d_must","d_income","d_later","s1","s2","s3"];
+
+  function num(id){const v=parseFloat($(id).value);return isNaN(v)?0:v;}
+  // operations.py 미러: 만원 단위
+  function side(p){
+    const units=num("p_units"), occ=num(p+"occ"), rent=num(p+"rent");
+    const costs=num(p+"c_clean")+num(p+"c_fix")+num(p+"c_util")+num(p+"c_lease");
+    const eff=rent*occ;                     // 실 임대수입
+    const vacLoss=rent*(units-occ);         // 공실손실
+    const noi=eff-costs;                     // 순영업소득
+    return {units,occ,vac:units-occ,rent,costs,fix:num(p+"c_fix"),eff,vacLoss,noi,
+            occRate:units>0?occ/units*100:0, vacDays:num(p+"vac"), comp:num(p+"comp")};
+  }
+  function chgCell(delta,unit,goodDown){
+    if(Math.abs(delta)<1e-9)return `<td class="chg flat">—</td>`;
+    const good=goodDown?delta<0:delta>0;
+    const mag=unit==="만원"?man(Math.round(Math.abs(delta))):(Math.round(Math.abs(delta)).toLocaleString()+unit);
+    const txt=(delta>0?"+":"−")+mag;
+    return `<td class="chg ${good?"up":"dn"}">${txt}</td>`;
+  }
+  function render(){
+    const b=side("b_"),a=side("a_"),inv=num("invest");
+    $("heroTitle").textContent=`${$("p_region").value} ${$("p_units").value}세대 다가구 — 1호 실증`;
+    // 핵심 숫자 표
+    const noiGain=a.noi-b.noi;
+    const payback=noiGain>0?inv/noiGain:null;              // 개월
+    const roi=inv>0&&noiGain>0?noiGain*12/inv*100:null;    // 연 %
+    const rows=[
+      ["누적 투자비", "—", man(inv), `<td class="chg dn">+${man(inv)}</td>`, false],
+      ["공실 세대", b.vac+"실", a.vac+"실", chgCell(a.vac-b.vac,"실",true), false],
+      ["점유율", b.occRate.toFixed(0)+"%", a.occRate.toFixed(0)+"%", chgCell(a.occRate-b.occRate,"%p",false), false],
+      ["월 임대수입", man(b.eff), man(a.eff), chgCell(a.eff-b.eff,"만원",false), true],
+      ["월 공실손실", man(b.vacLoss), man(a.vacLoss), chgCell(a.vacLoss-b.vacLoss,"만원",true), false],
+      ["월 운영비", man(b.costs), man(a.costs), chgCell(a.costs-b.costs,"만원",true), false],
+      ["└ 월평균 수리비", man(b.fix), man(a.fix), chgCell(a.fix-b.fix,"만원",true), false],
+      ["월 순영업소득(NOI)", man(b.noi), man(a.noi), chgCell(a.noi-b.noi,"만원",false), true],
+      ["월 민원", b.comp+"건", a.comp+"건", chgCell(a.comp-b.comp,"건",true), false],
+      ["평균 공실기간", b.vacDays+"일", a.vacDays+"일", chgCell(a.vacDays-b.vacDays,"일",true), false],
+    ];
+    $("kpiBody").innerHTML=rows.map(r=>`<tr class="${r[4]?"hl":""}"><td>${r[0]}</td><td class="v">${r[1]}</td><td class="v">${r[2]}</td>${r[3]}</tr>`).join("");
+    // KPI 카드
+    $("kpiCards").innerHTML=
+      `<div class="kpi"><div class="k">월 NOI 증가</div><div class="val ${noiGain>=0?"up":"dn"}">${noiGain>=0?"+":"−"}${man(Math.abs(noiGain))}</div><div class="note">개선 전 ${man(b.noi)} → ${man(a.noi)}</div></div>`+
+      `<div class="kpi"><div class="k">투자 회수기간</div><div class="val">${payback==null?"—":payback.toFixed(1)+"개월"}</div><div class="note">투자 ${man(inv)} ÷ 월 순증가</div></div>`+
+      `<div class="kpi"><div class="k">연 투자수익률</div><div class="val ${roi&&roi>=0?"up":""}">${roi==null?"—":"+"+roi.toFixed(0)+"%"}</div><div class="note">월 NOI 증가 × 12 ÷ 투자</div></div>`;
+    // 정직 문구
+    let msg;
+    if(noiGain<=0) msg=`솔직 공개: ${man(inv)}을 투자했지만 순수익 개선은 확인되지 않았습니다. 무엇이 통하지 않았는지도 그대로 공개합니다.`;
+    else msg=`${man(inv)} 투자 → 월 순수익 <b class="up">+${man(noiGain)}</b>, 약 <b>${payback.toFixed(1)}개월</b>이면 투자금을 회수합니다(연 ${roi.toFixed(0)}%). 결과가 나빠도 숫자는 그대로 공개합니다.`;
+    $("honest").innerHTML=msg;
+  }
+  function save(){const d={};FIELDS.forEach(f=>d[f]=$(f).value);d.content=[...document.querySelectorAll(".ep input")].map(c=>c.checked);
+    try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){}
+    $("savePill").textContent="저장됨 ✓";setTimeout(()=>$("savePill").textContent="자동저장",1200);}
+  function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(!d)return false;
+    FIELDS.forEach(f=>{if(d[f]!=null&&$(f))$(f).value=d[f];});return d;}catch(e){return false;}}
+  function buildContent(checks){
+    $("contentList").innerHTML=EPS.map((e,i)=>
+      `<label class="ep"><input type="checkbox" ${checks&&checks[i]?"checked":""}><div class="t"><b>${i+1}편. ${e[0]}</b><p>${e[1]}</p></div></label>`).join("");
+    document.querySelectorAll(".ep input").forEach(c=>c.addEventListener("change",save));
+  }
+  const saved=load();
+  buildContent(saved&&saved.content);
+  FIELDS.forEach(f=>$(f)&&$(f).addEventListener("input",()=>{render();save();}));
+  $("resetBtn").addEventListener("click",()=>{localStorage.removeItem(KEY);location.reload();});
+  render();
+</script>
+</body>
+</html>

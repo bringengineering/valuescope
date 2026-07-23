@@ -10,6 +10,7 @@ from .net_yield import (
     assumptions_for_age,
     compute_net_yield,
 )
+from .operations import OperatingSnapshot, ValueUpResult, compare_valueup
 from . import metrics
 
 __all__ = [
@@ -31,5 +32,8 @@ __all__ = [
     "NetYieldResult",
     "OperatingAssumptions",
     "assumptions_for_age",
+    "OperatingSnapshot",
+    "ValueUpResult",
+    "compare_valueup",
     "metrics",
 ]

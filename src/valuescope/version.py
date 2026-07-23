@@ -7,6 +7,6 @@ assumption (input) version so results are reproducible.
 from __future__ import annotations
 
 # Bump ENGINE_VERSION whenever a formula changes. Golden cases are pinned to it.
-ENGINE_VERSION = "0.3.0"
+ENGINE_VERSION = "0.4.0"
 
 __all__ = ["ENGINE_VERSION"]
