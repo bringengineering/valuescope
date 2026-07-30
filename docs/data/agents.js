@@ -1,0 +1,1 @@
+window.WONJU_AGENTS = [];
