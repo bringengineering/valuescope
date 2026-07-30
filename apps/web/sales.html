@@ -2,178 +2,181 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>BRING ValueScope — 영업 지도</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#1B4FD8" />
+<title>BRING — 영업 지도</title>
 <style>
   :root{
     --sans:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
-    --mono:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",Menlo,Consolas,monospace;
+    --mono:ui-monospace,"SF Mono","Roboto Mono",Menlo,Consolas,monospace;
     --bg:#EEF1F7;--surface:#FFFFFF;--surface-2:#F4F6FB;--ink:#131A26;--ink-2:#46536B;--muted:#7A879C;
     --line:#E4E9F1;--line-strong:#CBD3E1;--accent:#1B4FD8;
     --s0:#9AA7BC;--s1:#2E5BE6;--s2:#E8952E;--s3:#137A3C;--s4:#C4362F;
-    --shadow:0 1px 2px rgba(19,26,38,.05),0 10px 30px rgba(19,26,38,.07);
   }
   @media (prefers-color-scheme:dark){:root{
     --bg:#0B0F17;--surface:#131A27;--surface-2:#1A2231;--ink:#EAF0F8;--ink-2:#A9B6CC;--muted:#6E7C93;
-    --line:#26313F;--line-strong:#33404F;--accent:#5385F0;--shadow:0 1px 2px rgba(0,0,0,.3),0 12px 34px rgba(0,0,0,.4);
+    --line:#26313F;--line-strong:#33404F;--accent:#5385F0;
   }}
-  *{box-sizing:border-box;} html,body{height:100%;}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
-  .app{display:grid;grid-template-rows:auto 1fr;height:100vh;}
-  header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:11px 18px;background:var(--surface);border-bottom:1px solid var(--line);}
-  .brand{font-weight:800;font-size:16px;}.brand b{color:var(--accent);}.brand .sub{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:8px;}
-  .pill{font-family:var(--mono);font-size:11px;padding:4px 9px;border-radius:999px;border:1px solid var(--line-strong);color:var(--ink-2);text-decoration:none;background:var(--surface);}
-  a.pill{font-weight:700;border-color:var(--accent);color:var(--accent);}
-  .main{display:grid;grid-template-columns:330px 1fr;min-height:0;}
-  .side{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;overflow:auto;}
-  .sec{padding:14px 16px;border-bottom:1px solid var(--line);}
-  .sec h3{margin:0 0 4px;font-size:13px;}.sec p{margin:0 0 11px;font-size:11.5px;color:var(--muted);line-height:1.5;}
-  input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:9px;padding:8px 10px;}
-  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(27,79,216,.13);}
-  .row{display:flex;gap:7px;margin-bottom:8px;}
-  .row input.nm{flex:1;min-width:0;}
-  .row select{width:104px;}
-  .btn{font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;border-radius:9px;padding:9px 12px;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;}
-  .btn.ghost{background:transparent;color:var(--accent);}
-  .btn.sm{padding:7px 10px;font-size:11.5px;}
-  .hintline{font-size:11px;color:var(--muted);line-height:1.5;margin-top:2px;}
-  .place-on{background:#E8952E !important;border-color:#E8952E !important;}
-  .stats{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);}
-  .stats b{color:var(--ink);font-size:14px;}
-  .filters{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;}
-  .chip{font:inherit;font-size:11px;cursor:pointer;padding:4px 9px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-2);}
-  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
-  .list{display:flex;flex-direction:column;gap:6px;}
-  .ag{text-align:left;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 11px;display:flex;align-items:center;gap:9px;}
-  .ag:hover{border-color:var(--accent);}
-  .ag .dot{width:11px;height:11px;border-radius:50%;flex:none;}
-  .ag .nm{font-size:12.5px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .ag .dg{font-family:var(--mono);font-size:10px;color:var(--muted);}
-  .legend{display:flex;flex-wrap:wrap;gap:7px 11px;font-size:11px;color:var(--ink-2);}
-  .legend .lg{display:flex;align-items:center;gap:5px;font-family:var(--mono);}
-  .legend .sw{width:10px;height:10px;border-radius:50%;}
-  .dongs{display:flex;flex-direction:column;gap:5px;}
-  .drow{display:grid;grid-template-columns:20px 1fr auto;gap:8px;align-items:center;font-size:12px;}
-  .drow .rk{font-family:var(--mono);color:var(--muted);text-align:center;font-size:11px;}
-  .drow .bar{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;}
-  .drow .bar i{display:block;height:100%;}
-  .drow .c{font-family:var(--mono);font-size:11px;color:var(--ink-2);white-space:nowrap;}
-  .mapwrap{position:relative;min-height:0;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;} html,body{height:100%;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden;}
+  .app{display:flex;flex-direction:column;height:100dvh;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 13px;background:var(--surface);border-bottom:1px solid var(--line);z-index:5;}
+  .brand{font-weight:800;font-size:14.5px;white-space:nowrap;}.brand b{color:var(--accent);}
+  .hbtns{display:flex;gap:6px;align-items:center;}
+  .tbtn{font:inherit;font-size:11.5px;font-weight:700;cursor:pointer;border-radius:8px;padding:6px 10px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-2);}
+  .tbtn.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  a.tbtn{text-decoration:none;}
+  .mapwrap{position:relative;flex:1;min-height:0;}
   #map{width:100%;height:100%;background:var(--surface-2);}
-  .pin{transform:translate(-50%,-50%);width:15px;height:15px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.4);cursor:pointer;}
-  .banner{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:8;background:#131A26;color:#fff;font-size:12.5px;font-weight:600;padding:9px 15px;border-radius:999px;box-shadow:var(--shadow);display:none;}
+  .slbl{transform:translate(-50%,-50%);font-family:var(--mono);font-size:11px;font-weight:800;color:#fff;padding:2px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.35);pointer-events:none;}
+  .pin{transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);cursor:pointer;}
+  .banner{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:8;background:#131A26;color:#fff;font-size:12.5px;font-weight:600;padding:10px 16px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.3);display:none;}
   .banner.on{display:block;}
-  .maperr{position:absolute;inset:auto 14px 14px auto;max-width:340px;z-index:9;background:#F7E4E2;color:#C4362F;border:1px solid #e6b3ad;border-radius:10px;padding:11px 13px;font-size:12.5px;display:none;}
+  .fab{position:absolute;right:15px;bottom:calc(var(--sheet-peek) + 16px);z-index:7;width:54px;height:54px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:27px;font-weight:300;box-shadow:0 6px 18px rgba(27,79,216,.45);cursor:pointer;transition:bottom .25s;}
+  .legend{position:absolute;left:12px;top:12px;z-index:6;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 9px;box-shadow:0 2px 8px rgba(0,0,0,.12);display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:10px;color:var(--ink-2);}
+  .legend .lg{display:flex;align-items:center;gap:5px;}.legend .sw{width:9px;height:9px;border-radius:50%;}
+  .maperr{position:absolute;inset:auto 12px calc(var(--sheet-peek) + 16px) 12px;z-index:9;background:#F7E4E2;color:#C4362F;border:1px solid #e6b3ad;border-radius:10px;padding:10px 12px;font-size:12px;display:none;text-align:center;}
   .maperr.on{display:block;}
-  .iw{font-family:var(--sans);width:238px;padding:14px 15px;color:#131A26;}
-  .iw h2{margin:0 0 3px;font-size:15px;}
-  .iw .dg{font-family:var(--mono);font-size:11px;color:#7A879C;margin-bottom:10px;}
-  .iw select{width:100%;font-size:12.5px;margin-bottom:9px;font-weight:700;}
-  .iw .stars{font-size:19px;color:#D6DEEB;cursor:pointer;margin-bottom:9px;}
-  .iw .stars .on{color:#E8A93A;}
-  .iw textarea{width:100%;min-height:52px;font-size:12px;line-height:1.5;resize:vertical;color:#131A26;}
-  .iw .del{margin-top:8px;background:none;border:0;color:#C4362F;font-size:12px;cursor:pointer;padding:0;}
-  @media (max-width:780px){.main{grid-template-columns:1fr;grid-template-rows:auto 1fr;}.side{max-height:42vh;}}
+  /* 바텀시트 */
+  .sheet{position:absolute;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--line);border-radius:16px 16px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.12);transition:transform .25s;max-height:78dvh;display:flex;flex-direction:column;}
+  .sheet .grip{padding:8px 0 4px;display:flex;justify-content:center;cursor:pointer;flex:none;}
+  .sheet .grip i{width:38px;height:5px;border-radius:3px;background:var(--line-strong);}
+  .sheet .peek{padding:0 15px 11px;flex:none;}
+  .stats{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--ink-2);align-items:center;}
+  .stats b{color:var(--ink);font-size:15px;}
+  .stats .sp{margin-left:auto;font-size:11px;color:var(--muted);}
+  .body{overflow:auto;padding:4px 15px 22px;flex:1;}
+  .filters{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 12px;}
+  .chip{font:inherit;font-size:11px;cursor:pointer;padding:5px 10px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-2);}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+  input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:10px;padding:10px 11px;}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);}
+  .addrow{display:flex;gap:7px;margin-bottom:8px;}.addrow input.nm{flex:1;min-width:0;}.addrow select{width:96px;}
+  .btn{font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;border-radius:10px;padding:11px 14px;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;}
+  .btn.ghost{background:transparent;color:var(--accent);}
+  .btn.wide{width:100%;}
+  .place-on{background:#E8952E !important;border-color:#E8952E !important;}
+  .hint{font-size:11px;color:var(--muted);line-height:1.5;margin:3px 0 14px;}
+  .list{display:flex;flex-direction:column;gap:7px;}
+  .ag{text-align:left;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 12px;display:flex;align-items:center;gap:10px;}
+  .ag .dot{width:12px;height:12px;border-radius:50%;flex:none;}
+  .ag .nm{font-size:13.5px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .ag .dg{font-family:var(--mono);font-size:10.5px;color:var(--muted);}
+  .ag .rt{font-size:11px;color:#E8A93A;}
+  .h4{font-size:12px;font-weight:800;margin:16px 0 8px;color:var(--ink);}
+  .dongs{display:flex;flex-direction:column;gap:6px;}
+  .drow{display:grid;grid-template-columns:18px 1fr auto;gap:9px;align-items:center;font-size:12px;}
+  .drow .rk{font-family:var(--mono);color:var(--muted);text-align:center;font-size:11px;}
+  .drow .bar{height:7px;border-radius:4px;background:var(--surface-2);overflow:hidden;}.drow .bar i{display:block;height:100%;}
+  .drow .c{font-family:var(--mono);font-size:11px;color:var(--ink-2);white-space:nowrap;}
+  /* InfoWindow */
+  .iw{font-family:var(--sans);width:236px;padding:14px 15px;color:#131A26;}
+  .iw h2{margin:0 0 3px;font-size:15px;}.iw .dg{font-family:var(--mono);font-size:11px;color:#7A879C;margin-bottom:10px;}
+  .iw select{width:100%;font-size:13px;margin-bottom:9px;font-weight:700;padding:8px;}
+  .iw .stars{font-size:21px;color:#D6DEEB;cursor:pointer;margin-bottom:9px;letter-spacing:2px;}.iw .stars .on{color:#E8A93A;}
+  .iw textarea{width:100%;min-height:54px;font-size:12.5px;line-height:1.5;resize:vertical;color:#131A26;}
+  .iw .del{margin-top:9px;background:none;border:0;color:#C4362F;font-size:12.5px;cursor:pointer;padding:0;}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app" style="--sheet-peek:104px">
   <header>
-    <div class="brand">BRING <b>ValueScope</b><span class="sub">영업 지도</span></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="pill" href="./wonju.html">← 원주 지도</a><span class="pill" id="savePill">자동저장</span></div>
+    <div class="brand">BRING <b>영업지도</b></div>
+    <div class="hbtns">
+      <button class="tbtn on" id="secBtn">섹터</button>
+      <a class="tbtn" href="./wonju.html">지도</a>
+      <span class="tbtn" id="savePill" style="cursor:default">저장</span>
+    </div>
   </header>
-  <div class="main">
-    <aside class="side">
-      <div class="sec">
-        <h3>중개사 추가</h3>
-        <p>이름 넣고 <b>“지도에 찍기”</b> → 지도에서 위치 클릭. 또는 주소로 찾기.</p>
-        <div class="row"><input class="nm" id="in_name" placeholder="중개사무소 이름"><select id="in_dong"></select></div>
-        <div class="row"><button class="btn" id="placeBtn" style="flex:1">📍 지도에 찍기</button></div>
-        <div class="row"><input class="nm" id="in_addr" placeholder="주소로 찾기 (도로명/지번)"><button class="btn ghost sm" id="geoBtn">찾기</button></div>
-        <div class="hintline">네이버 지도의 내 목록을 보면서, 같은 위치를 여기 지도에 찍으면 됩니다.</div>
-      </div>
-      <div class="sec">
+  <div class="mapwrap">
+    <div id="map"></div>
+    <div class="legend" id="legend"></div>
+    <div class="banner" id="banner">지도에서 중개사 위치를 탭하세요</div>
+    <div class="maperr" id="maperr"></div>
+    <button class="fab" id="fab">＋</button>
+    <div class="sheet" id="sheet">
+      <div class="grip" id="grip"><i></i></div>
+      <div class="peek">
         <div class="stats" id="stats"></div>
-        <div class="filters" id="filters"></div>
-        <div class="filters" style="margin-top:9px"><input class="nm" id="search" placeholder="이름·동 검색" style="width:100%"></div>
-        <div class="list" id="list" style="margin-top:11px"></div>
+        <div class="filters" id="filters" style="margin-top:10px"></div>
       </div>
-      <div class="sec">
-        <h3>상태 색</h3>
-        <div class="legend" id="legend"></div>
-      </div>
-      <div class="sec">
-        <h3>다가구 밀집 = 타깃 순위</h3>
-        <p>여기 많은 동부터 도세요. (원주 24,933건 기준)</p>
+      <div class="body" id="sheetBody">
+        <div class="addrow"><input class="nm" id="in_name" placeholder="중개사무소 이름"><select id="in_dong"></select></div>
+        <button class="btn wide" id="placeBtn" style="margin-bottom:8px">📍 지도에 위치 찍기</button>
+        <div class="addrow"><input class="nm" id="in_addr" placeholder="주소로 찾기 (도로명/지번)"><button class="btn ghost" id="geoBtn">찾기</button></div>
+        <div class="hint">네이버 지도 내 목록을 보며 같은 위치를 여기에 찍으세요. 방문하면 핀 색이 바뀝니다.</div>
+        <input class="nm" id="search" placeholder="이름·동 검색" style="width:100%;margin-bottom:10px">
+        <div class="list" id="list"></div>
+        <div class="h4">다가구 밀집 = 타깃 순위 (원주 24,933건)</div>
         <div class="dongs" id="dongs"></div>
       </div>
-    </aside>
-    <div class="mapwrap">
-      <div id="map"></div>
-      <div class="banner" id="banner">지도를 클릭해 중개사 위치를 찍으세요 (ESC 취소)</div>
-      <div class="maperr" id="maperr"></div>
     </div>
   </div>
 </div>
-
 <script>
+  const SECTORS=[{"dong": "단계동", "color": "#137A3C", "n": 997, "center": [37.347951, 127.932807], "path": [[37.348709, 127.924176], [37.339092, 127.930653], [37.338373, 127.931601], [37.337528, 127.933081], [37.337582, 127.934067], [37.337888, 127.935548], [37.338028, 127.935945], [37.34249, 127.940494], [37.357605, 127.935885], [37.358061, 127.934923], [37.35817, 127.93465], [37.358251, 127.933379], [37.358197, 127.932835], [37.358036, 127.931856], [37.357905, 127.93154], [37.356472, 127.928999]]}, {"dong": "단구동", "color": "#2E5BE6", "n": 973, "center": [37.322821, 127.955137], "path": [[37.322945, 127.942566], [37.322563, 127.94257], [37.322313, 127.942722], [37.315877, 127.947705], [37.31442, 127.956099], [37.314334, 127.957005], [37.319428, 127.966784], [37.319541, 127.96695], [37.321191, 127.967439], [37.32344, 127.966736], [37.323651, 127.966606], [37.324132, 127.966307], [37.33156, 127.961071], [37.333242, 127.959375], [37.333451, 127.954612], [37.330566, 127.947475], [37.326249, 127.943065], [37.325813, 127.942941], [37.325271, 127.942848], [37.324411, 127.942704], [37.323765, 127.942635]]}, {"dong": "관설동", "color": "#137A3C", "n": 534, "center": [37.317998, 127.962078], "path": [[37.316658, 127.958606], [37.316193, 127.958812], [37.315051, 127.959807], [37.314724, 127.960899], [37.314655, 127.961143], [37.314611, 127.961318], [37.314656, 127.961756], [37.315938, 127.96386], [37.318213, 127.965384], [37.318402, 127.965414], [37.319678, 127.964802], [37.320745, 127.963942], [37.321607, 127.962926], [37.321715, 127.961734], [37.321619, 127.961178], [37.321293, 127.960265], [37.321093, 127.960166]]}, {"dong": "우산동", "color": "#2E5BE6", "n": 498, "center": [37.367502, 127.935723], "path": [[37.367312, 127.931463], [37.365734, 127.932215], [37.365324, 127.932914], [37.364129, 127.937592], [37.364092, 127.938154], [37.36566, 127.939162], [37.366315, 127.939486], [37.368493, 127.939596], [37.369908, 127.939246], [37.370235, 127.939017], [37.37082, 127.938281], [37.370978, 127.938033], [37.371212, 127.937421], [37.371494, 127.935625], [37.371496, 127.935455], [37.371245, 127.93386], [37.371199, 127.933614]]}, {"dong": "명륜동", "color": "#2E5BE6", "n": 447, "center": [37.329998, 127.943661], "path": [[37.327694, 127.940228], [37.326473, 127.940277], [37.326212, 127.940545], [37.325711, 127.941094], [37.325789, 127.941227], [37.326759, 127.942474], [37.327948, 127.943993], [37.328007, 127.944058], [37.328819, 127.944689], [37.331856, 127.946694], [37.332271, 127.946698], [37.33249, 127.946601], [37.332723, 127.946285], [37.33399, 127.944559], [37.334383, 127.944014], [37.334585, 127.94373], [37.334756, 127.942111]]}, {"dong": "무실동", "color": "#2E5BE6", "n": 441, "center": [37.332768, 127.927877], "path": [[37.333563, 127.921106], [37.326571, 127.92847], [37.326312, 127.928757], [37.326592, 127.930187], [37.331721, 127.932756], [37.336219, 127.933855], [37.336587, 127.933705], [37.336792, 127.933464], [37.33782, 127.931985], [37.338771, 127.927762], [37.339044, 127.92606], [37.338757, 127.925734], [37.334469, 127.921197], [37.334182, 127.921145]]}, {"dong": "반곡동", "color": "#2E5BE6", "n": 363, "center": [37.327963, 127.987001], "path": [[37.320419, 127.974768], [37.320155, 127.974874], [37.320074, 127.974999], [37.317618, 127.9888], [37.322735, 127.993338], [37.326583, 127.996145], [37.329913, 127.996813], [37.330749, 127.996704], [37.332495, 127.992301], [37.332406, 127.991905], [37.326439, 127.979149]]}, {"dong": "봉산동", "color": "#5B8AE8", "n": 219, "center": [37.343181, 127.964626], "path": [[37.347274, 127.957013], [37.346272, 127.95725], [37.345264, 127.958735], [37.342161, 127.964552], [37.341969, 127.966128], [37.342101, 127.968193], [37.342165, 127.969125], [37.347335, 127.965103], [37.349149, 127.958264], [37.349047, 127.957801]]}, {"dong": "일산동", "color": "#9AA7BC", "n": 183, "center": [37.348101, 127.942526], "path": [[37.349529, 127.938332], [37.344368, 127.93975], [37.344274, 127.939924], [37.343757, 127.941147], [37.344375, 127.942528], [37.344868, 127.9436], [37.346036, 127.945491], [37.347389, 127.947129], [37.348369, 127.94718], [37.350416, 127.946502], [37.351193, 127.945897], [37.351909, 127.945043], [37.351852, 127.944095], [37.351301, 127.941239], [37.350039, 127.938501]]}, {"dong": "태장동", "color": "#9AA7BC", "n": 170, "center": [37.382857, 127.951518], "path": [[37.382811, 127.943058], [37.361364, 127.951648], [37.360788, 127.952789], [37.36087, 127.956742], [37.360914, 127.957018], [37.375553, 127.97046], [37.402906, 127.954417], [37.40284, 127.949429]]}];
   const $=id=>document.getElementById(id);
   const KEY="bring_sales_v2", NAVER_KEY="1iu68jzhci";
   const STATES=["미방문","방문완료","재방문요","유망","제외"];
-  const SC={"미방문":"var(--s0)","방문완료":"var(--s1)","재방문요":"var(--s2)","유망":"var(--s3)","제외":"var(--s4)"};
   const SHEX={"미방문":"#9AA7BC","방문완료":"#2E5BE6","재방문요":"#E8952E","유망":"#137A3C","제외":"#C4362F"};
-  const DONGS=[["단계동",997,"#137A3C"],["단구동",973,"#2E5BE6"],["관설동",534,"#137A3C"],["우산동",498,"#2E5BE6"],
-    ["명륜동",447,"#2E5BE6"],["무실동",441,"#2E5BE6"],["반곡동",363,"#2E5BE6"],["봉산동",219,"#2E5BE6"],
-    ["일산동",183,"#9AA7BC"],["태장동",170,"#9AA7BC"],["개운동",141,"#9AA7BC"],["행구동",82,"#9AA7BC"],
-    ["학성동",40,"#9AA7BC"],["원동",26,"#9AA7BC"],["평원동",8,"#9AA7BC"],["가현동",4,"#9AA7BC"],["중앙동",2,"#9AA7BC"],["인동",1,"#9AA7BC"]];
+  const DRANK=["단계동","단구동","관설동","우산동","명륜동","무실동","반곡동","봉산동","일산동","태장동"];
   const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-  let data={agents:[]}, map, iw, markers={}, placing=false, filter="전체";
+  let data={agents:[]}, map, iw, markers={}, sectorOverlays=[], showSec=true, placing=false, filter="전체", expanded=false;
 
   function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&d.agents)data=d;}catch(e){}}
-  function save(){try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}$("savePill").textContent="저장됨 ✓";setTimeout(()=>$("savePill").textContent="자동저장",900);}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}$("savePill").textContent="저장됨";setTimeout(()=>$("savePill").textContent="저장",900);}
   const uid=()=>"a"+Math.random().toString(36).slice(2,9);
   const find=id=>data.agents.find(a=>a.id===id);
 
   function sidebar(){
-    // stats
     const a=data.agents,n=a.length,vis=a.filter(x=>x.status!=="미방문").length,hot=a.filter(x=>x.status==="유망").length;
-    $("stats").innerHTML=`<span>전체 <b>${n}</b></span><span>방문 <b>${vis}</b></span><span>유망 <b style="color:#137A3C">${hot}</b></span>`;
-    // filters
+    $("stats").innerHTML=`<span>중개사 <b>${n}</b></span><span>방문 <b>${vis}</b></span><span>유망 <b style="color:#137A3C">${hot}</b></span><span class="sp">탭하면 펼침</span>`;
     $("filters").innerHTML=["전체",...STATES].map(o=>`<button class="chip ${filter===o?"on":""}" data-f="${o}">${o}</button>`).join("");
-    document.querySelectorAll("#filters .chip").forEach(c=>c.addEventListener("click",()=>{filter=c.dataset.f;render();}));
-    // list
+    document.querySelectorAll("#filters .chip").forEach(c=>c.addEventListener("click",e=>{e.stopPropagation();filter=c.dataset.f;expand(true);renderList();}));
+    renderList();
+  }
+  function renderList(){
     const q=($("search").value||"").replace(/\s/g,"");
-    const dord=Object.fromEntries(DONGS.map((d,i)=>[d[0],i]));
-    let list=a.slice().filter(x=>filter==="전체"||x.status===filter)
-      .filter(x=>!q||((x.name||"")+(x.dong||"")).replace(/\s/g,"").includes(q));
+    const dord=Object.fromEntries(DRANK.map((d,i)=>[d,i]));
+    let list=data.agents.slice().filter(x=>filter==="전체"||x.status===filter).filter(x=>!q||((x.name||"")+(x.dong||"")).replace(/\s/g,"").includes(q));
     list.sort((x,y)=>(dord[x.dong]??99)-(dord[y.dong]??99));
     $("list").innerHTML=list.length?list.map(x=>
-      `<button class="ag" data-id="${x.id}"><span class="dot" style="background:${SHEX[x.status]}"></span><span class="nm">${esc(x.name)}</span><span class="dg">${esc(x.dong||"")}</span></button>`
-    ).join(""):'<div style="color:var(--muted);font-size:12px;padding:10px 2px">아직 없음. 이름 넣고 “지도에 찍기”.</div>';
+      `<button class="ag" data-id="${x.id}"><span class="dot" style="background:${SHEX[x.status]}"></span><span class="nm">${esc(x.name)}</span>${x.rating?`<span class="rt">${"★".repeat(x.rating)}</span>`:""}<span class="dg">${esc(x.dong||"")}</span></button>`
+    ).join(""):'<div style="color:var(--muted);font-size:12px;padding:8px 2px">아직 없음 — 이름 넣고 “위치 찍기”.</div>';
     document.querySelectorAll("#list .ag").forEach(b=>b.addEventListener("click",()=>focus(b.dataset.id)));
   }
   function render(){sidebar();renderMarkers();}
 
-  function pinIcon(st){return {content:`<div class="pin" style="background:${SHEX[st]}"></div>`,anchor:new naver.maps.Point(7,7)};}
   function renderMarkers(){
     for(const k in markers){markers[k].setMap(null);delete markers[k];}
     data.agents.forEach(a=>{
       if(a.lat==null)return;
-      const m=new naver.maps.Marker({position:new naver.maps.LatLng(a.lat,a.lng),map,icon:pinIcon(a.status)});
+      const m=new naver.maps.Marker({position:new naver.maps.LatLng(a.lat,a.lng),map,zIndex:100,
+        icon:{content:`<div class="pin" style="background:${SHEX[a.status]}"></div>`,anchor:new naver.maps.Point(8,8)}});
       naver.maps.Event.addListener(m,"click",()=>openEdit(a.id,m));
       markers[a.id]=m;
     });
   }
-  function focus(id){const a=find(id);if(!a||a.lat==null||!map)return;map.panTo(new naver.maps.LatLng(a.lat,a.lng));if(markers[id])openEdit(id,markers[id]);}
+  function drawSectors(){
+    sectorOverlays.forEach(o=>o.setMap(null));sectorOverlays=[];
+    if(!showSec)return;
+    SECTORS.forEach(s=>{
+      const path=s.path.map(p=>new naver.maps.LatLng(p[0],p[1]));
+      const poly=new naver.maps.Polygon({map,paths:[path],strokeColor:s.color,strokeWeight:2.5,strokeOpacity:.95,fillColor:s.color,fillOpacity:.12});
+      const lbl=new naver.maps.Marker({position:new naver.maps.LatLng(s.center[0],s.center[1]),map,clickable:false,zIndex:60,
+        icon:{content:`<div class="slbl" style="background:${s.color}">${s.dong} ${s.n}</div>`,anchor:new naver.maps.Point(0,0)}});
+      sectorOverlays.push(poly,lbl);
+    });
+  }
+  function focus(id){const a=find(id);if(!a||a.lat==null||!map)return;expand(false);map.panTo(new naver.maps.LatLng(a.lat,a.lng));if(markers[id])openEdit(id,markers[id]);}
 
   function openEdit(id,m){
     const a=find(id);if(!a)return;
-    iw.setContent(
-      `<div class="iw"><h2>${esc(a.name)}</h2><div class="dg">${esc(a.dong||"")}</div>
-       <select onchange="vsStatus('${id}',this.value)">${STATES.map(s=>`<option ${s===a.status?"selected":""}>${s}</option>`).join("")}</select>
-       <div class="stars" id="st-${id}">${[1,2,3,4,5].map(s=>`<span class="${s<=a.rating?"on":""}" onclick="vsStar('${id}',${s})">★</span>`).join("")}</div>
-       <textarea placeholder="메모: 다가구 취급? 반응? 재방문 시점" oninput="vsNote('${id}',this.value)">${esc(a.note||"")}</textarea>
-       <button class="del" onclick="vsDel('${id}')">이 중개사 삭제</button></div>`);
+    iw.setContent(`<div class="iw"><h2>${esc(a.name)}</h2><div class="dg">${esc(a.dong||"")}</div>
+      <select onchange="vsStatus('${id}',this.value)">${STATES.map(s=>`<option ${s===a.status?"selected":""}>${s}</option>`).join("")}</select>
+      <div class="stars">${[1,2,3,4,5].map(s=>`<span class="${s<=a.rating?"on":""}" onclick="vsStar('${id}',${s})">★</span>`).join("")}</div>
+      <textarea placeholder="메모: 다가구 취급? 반응?" oninput="vsNote('${id}',this.value)">${esc(a.note||"")}</textarea>
+      <button class="del" onclick="vsDel('${id}')">삭제</button></div>`);
     iw.open(map,m);
   }
   window.vsStatus=(id,v)=>{find(id).status=v;save();render();};
@@ -184,45 +187,48 @@
   function addAt(lat,lng){
     const name=$("in_name").value.trim()||"중개사";
     const a={id:uid(),name,dong:$("in_dong").value||"",lat,lng,status:"미방문",rating:0,note:""};
-    data.agents.unshift(a);$("in_name").value="";save();render();
-    setTimeout(()=>focus(a.id),60);
+    data.agents.unshift(a);$("in_name").value="";save();render();setTimeout(()=>focus(a.id),80);
   }
-  function setPlacing(on){placing=on;$("banner").classList.toggle("on",on);$("placeBtn").classList.toggle("place-on",on);}
+  function setPlacing(on){placing=on;$("banner").classList.toggle("on",on);$("placeBtn").classList.toggle("place-on",on);if(on)expand(false);}
+  function expand(on){expanded=on;$("sheet").style.transform=on?"translateY(0)":`translateY(calc(100% - var(--sheet-peek)))`;}
 
   function initMap(){
-    map=new naver.maps.Map("map",{center:new naver.maps.LatLng(37.342,127.92),zoom:13,minZoom:11,mapDataControl:false});
-    iw=new naver.maps.InfoWindow({borderWidth:0,backgroundColor:"#fff",borderColor:"#E4E9F1",anchorSize:new naver.maps.Size(0,0),pixelOffset:new naver.maps.Point(0,-4)});
+    map=new naver.maps.Map("map",{center:new naver.maps.LatLng(37.345,127.925),zoom:13,minZoom:11,mapDataControl:false,logoControl:true,scaleControl:false});
+    iw=new naver.maps.InfoWindow({borderWidth:1,borderColor:"#E4E9F1",backgroundColor:"#fff",anchorSize:new naver.maps.Size(0,0),pixelOffset:new naver.maps.Point(0,-6)});
     naver.maps.Event.addListener(map,"click",e=>{if(placing){addAt(e.coord.lat(),e.coord.lng());setPlacing(false);}else iw.close();});
-    renderMarkers();
+    drawSectors();renderMarkers();
   }
   function geocodeAdd(){
     const q=$("in_addr").value.trim();if(!q)return;
-    if(!(window.naver&&naver.maps.Service)){showErr("지오코딩 로드 안됨");return;}
+    if(!(window.naver&&naver.maps.Service)){showErr("지오코딩 준비 안됨");return;}
     naver.maps.Service.geocode({query:q},(st,res)=>{
       if(st!==naver.maps.Service.Status.OK||!res.v2.addresses.length){showErr("주소를 찾지 못했습니다");return;}
       const ad=res.v2.addresses[0];addAt(+ad.y,+ad.x);$("in_addr").value="";map.setZoom(16);
     });
   }
-  function showErr(m){$("maperr").textContent=m;$("maperr").classList.add("on");setTimeout(()=>$("maperr").classList.remove("on"),3000);}
+  function showErr(m){$("maperr").textContent=m;$("maperr").classList.add("on");setTimeout(()=>$("maperr").classList.remove("on"),2800);}
   function loadNaver(){
-    window.navermap_authFailure=()=>showErr("네이버 지도 인증 실패 — Web 서비스 URL 등록 확인");
+    window.navermap_authFailure=()=>showErr("네이버 지도 인증 실패 (도메인 등록 확인)");
     window.__ready=()=>initMap();
     const s=document.createElement("script");
     s.src=`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${NAVER_KEY}&submodules=geocoder&callback=__ready`;
     s.async=true;s.onerror=()=>showErr("네이버 지도 로드 차단");document.head.appendChild(s);
   }
 
-  // init UI
-  $("in_dong").innerHTML='<option value="">동</option>'+DONGS.map(d=>`<option>${d[0]}</option>`).join("");
+  // UI init
+  $("in_dong").innerHTML='<option value="">동</option>'+DRANK.map(d=>`<option>${d}</option>`).join("");
   $("legend").innerHTML=STATES.map(s=>`<span class="lg"><span class="sw" style="background:${SHEX[s]}"></span>${s}</span>`).join("");
-  const mx=DONGS[0][1];
-  $("dongs").innerHTML=DONGS.slice(0,10).map((d,i)=>`<div class="drow"><span class="rk">${i+1}</span><div class="bar"><i style="width:${Math.max(5,d[1]/mx*100)}%;background:${d[2]}"></i></div><span class="c">${d[0]} ${d[1]}</span></div>`).join("");
+  const mx=Math.max(...SECTORS.map(s=>s.n),1);
+  $("dongs").innerHTML=SECTORS.map((s,i)=>`<div class="drow"><span class="rk">${i+1}</span><div class="bar"><i style="width:${Math.max(5,s.n/mx*100)}%;background:${s.color}"></i></div><span class="c">${s.dong} ${s.n}</span></div>`).join("");
+  $("secBtn").addEventListener("click",()=>{showSec=!showSec;$("secBtn").classList.toggle("on",showSec);drawSectors();});
   $("placeBtn").addEventListener("click",()=>setPlacing(!placing));
   $("geoBtn").addEventListener("click",geocodeAdd);
   $("in_addr").addEventListener("keydown",e=>{if(e.key==="Enter")geocodeAdd();});
-  $("search").addEventListener("input",sidebar);
+  $("search").addEventListener("input",renderList);
+  $("grip").addEventListener("click",()=>expand(!expanded));
+  $("fab").addEventListener("click",()=>{expand(true);$("in_name").focus();});
   document.addEventListener("keydown",e=>{if(e.key==="Escape")setPlacing(false);});
-  load();sidebar();loadNaver();
+  load();sidebar();expand(false);loadNaver();
 </script>
 </body>
 </html>
