@@ -153,9 +153,12 @@
   function renderBase(){
     baseMarkers.forEach(m=>m.setMap(null));baseMarkers=[];
     const BASE=window.WONJU_AGENTS||[];
+    if(map.getZoom&&map.getZoom()<14)return;  // 축소 시 동그라미 숨김(성능)
+    const bd=map.getBounds&&map.getBounds();
     const trackedIds=new Set(data.agents.map(a=>a.id));
     BASE.forEach(b=>{
       if(trackedIds.has(b.id))return;  // 이미 내 목록 → 색 핀으로 표시됨
+      if(bd&&bd.hasLatLng&&!bd.hasLatLng(new naver.maps.LatLng(b.lat,b.lng)))return;
       const m=new naver.maps.Marker({position:new naver.maps.LatLng(b.lat,b.lng),map,zIndex:40,
         icon:{content:'<div class="ring" title="'+esc(b.name)+'"></div>',anchor:new naver.maps.Point(7,7)}});
       naver.maps.Event.addListener(m,"click",()=>{
@@ -227,6 +230,7 @@
     map=new naver.maps.Map("map",{center:new naver.maps.LatLng(37.345,127.925),zoom:13,minZoom:11,mapDataControl:false,logoControl:true,scaleControl:false});
     iw=new naver.maps.InfoWindow({borderWidth:1,borderColor:"#E4E9F1",backgroundColor:"#fff",anchorSize:new naver.maps.Size(0,0),pixelOffset:new naver.maps.Point(0,-6)});
     naver.maps.Event.addListener(map,"click",e=>{if(placing){addAt(e.coord.lat(),e.coord.lng());setPlacing(false);}else iw.close();});
+    naver.maps.Event.addListener(map,"idle",()=>renderBase());
     drawSectors();renderMarkers();
   }
   function geocodeAdd(){
