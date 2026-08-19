@@ -111,6 +111,7 @@
       <a class="pill" href="./valueup.html">🏗 밸류업 실증</a>
       <a class="pill" href="./sales.html">📋 영업 관리</a>
       <span class="pill" id="srcPill">건물 —</span>
+      <button class="pill" id="anchorBtn" style="cursor:pointer;font-weight:700;border-color:#E8952E;color:#B8770E">★ 앵커 ON</button>
       <span class="pill">추정 · 신뢰도 C~D</span>
     </div>
   </header>
@@ -167,6 +168,29 @@
   const YIELD_T=[{c:"#9FB6DF",l:"~3%"},{c:"#5B8AE8",l:"3~4%"},{c:"#2E5BE6",l:"4~5%"},{c:"#16308A",l:"5%+"}];
   const yieldTier=y=>y==null?0:(y>=5?3:y>=4?2:y>=3?1:0);
 
+  // ── 앵커시설 (마스터 기획: 앵커가 임대수요를 만든다) · 좌표 OSM, 참고용 ──
+  const ANCHORS=[{"name":"상지대학교","cat":"대학","lat":37.369875,"lng":127.929059},{"name":"연세대학교 미래캠퍼스","cat":"대학","lat":37.280096,"lng":127.901503},{"name":"한라대학교","cat":"대학","lat":37.303219,"lng":127.907415},{"name":"원주세브란스기독병원","cat":"병원","lat":37.348251,"lng":127.945351},{"name":"원주의료원","cat":"병원","lat":37.332858,"lng":127.948916},{"name":"원주시청","cat":"공공","lat":37.340668,"lng":127.922409},{"name":"국민건강보험공단","cat":"공공","lat":37.324548,"lng":127.986262},{"name":"한국관광공사","cat":"공공","lat":37.324189,"lng":127.990627},{"name":"원주역","cat":"교통","lat":37.316408,"lng":127.922821},{"name":"서원주역","cat":"교통","lat":37.34853,"lng":127.839395},{"name":"원주종합버스터미널","cat":"교통","lat":37.344294,"lng":127.930454},{"name":"AK플라자 원주","cat":"상업","lat":37.345414,"lng":127.927082},{"name":"원주종합운동장","cat":"문화체육","lat":37.337317,"lng":127.943414},{"name":"치악체육관","cat":"문화체육","lat":37.3382,"lng":127.940266},{"name":"제1군수지원사령부","cat":"군","lat":37.372912,"lng":127.916341},{"name":"원주기업도시","cat":"산업","lat":37.386719,"lng":127.903468}];
+  const ACAT={"대학":"#7A54C9","병원":"#C4362F","공공":"#1B4FD8","교통":"#131A26","상업":"#E8952E","문화체육":"#137A3C","군":"#5A6B85","산업":"#0E7C86"};
+  // 동 성격(참고): 운영형=현재 임대수요·수익 안정 / 개발기대형=구도심·개발압력 중심
+  const DTYPE={"우산동":"운영형","무실동":"운영형","단계동":"운영형","관설동":"운영형","단구동":"운영형","명륜동":"운영형","행구동":"운영형","반곡동":"운영형","봉산동":"혼합","태장동":"혼합","개운동":"혼합","중앙동":"개발기대형","인동":"개발기대형","원동":"개발기대형","평원동":"개발기대형","학성동":"개발기대형","일산동":"개발기대형","가현동":"개발기대형"};
+  const DTCOL={"운영형":"#137A3C","혼합":"#5A6B85","개발기대형":"#C77A0A"};
+  function nearAnchors(b,maxKm,n){maxKm=maxKm||2.5;n=n||3;
+    const ky=111.32,kx=88.9;
+    return ANCHORS.map(a=>({a,d:Math.hypot((a.lat-b.lat)*ky,(a.lng-b.lng)*kx)}))
+      .filter(x=>x.d<=maxKm).sort((x,y)=>x.d-y.d).slice(0,n);}
+  const fmtD=d=>d<1?Math.round(d*1000)+"m":d.toFixed(1)+"km";
+  let anchorOv=[],showAnchors=true;
+  function drawAnchors(){
+    anchorOv.forEach(o=>o.setMap(null));anchorOv=[];
+    if(!showAnchors||!map)return;
+    ANCHORS.forEach(a=>{
+      const c=ACAT[a.cat]||"#131A26";
+      anchorOv.push(new naver.maps.Circle({map,center:new naver.maps.LatLng(a.lat,a.lng),radius:1000,strokeColor:c,strokeOpacity:.28,strokeWeight:1.5,fillColor:c,fillOpacity:.05,clickable:false}));
+      anchorOv.push(new naver.maps.Marker({position:new naver.maps.LatLng(a.lat,a.lng),map,zIndex:90,clickable:false,
+        icon:{content:`<div style="transform:translate(-50%,-50%);font:800 10.5px ui-monospace,monospace;color:#fff;background:${c};padding:3px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.35)">★ ${a.name}</div>`,anchor:new naver.maps.Point(0,0)}}));
+    });
+  }
+
   function openInfo(b,m){infoWindow.setContent(infoHTML(b));infoWindow.open(map,m);setTimeout(()=>window.vsReno(b.id,1),0);}
   window.vsClose=function(){if(infoWindow)infoWindow.close();};
   let map,infoWindow,searchMarker=null,overlays=[],colorMode="yield";
@@ -190,6 +214,19 @@
     box.className="vd "+cls;
     box.innerHTML=`호가 ${pm2.toFixed(0)}만/㎡ → <b>${label}</b><br><span style="opacity:.75">${esc(b.dong)} ${(b.area>=330?'대형':'전체')} 시세 ${bd.p25}~${bd.p75}만/㎡(중앙 ${bd.med}) · 실거래 ${bd.n}건</span>`;
   };
+  window.vsRent=function(id,man){
+    const b=D._byId[id],box=el("rd-"+id);if(!box)return;
+    const v=parseFloat(man);
+    const w=(D.bands[b.dong]&&D.bands[b.dong].wolse_per_m2)||(D.city_band&&D.city_band.wolse_per_m2);
+    if(!b||!b.area||!w||!(v>0)){box.className="vd";box.textContent="현재 받는 월세(건물 전체)를 넣으면 동 시세 대비 적정성 — 공실 1차 진단.";return;}
+    const diff=Math.round(((v/b.area)/w-1)*100);
+    let cls,msg;
+    if(diff>=15){cls="vd-bad";msg=`동 시세 대비 <b>+${diff}%</b> — 공실 원인이 <b>가격</b>일 가능성. 사진·채널보다 가격·조건부터.`;}
+    else if(diff<=-10){cls="vd-good";msg=`동 시세 대비 <b>${diff}%</b> — 가격 문제 아님. <b>노출(사진·플랫폼)·시설·관리</b> 순서로 점검.`;}
+    else{cls="vd-mid";msg=`동 시세 대비 <b>${diff>=0?"+":""}${diff}%</b> 적정 — 가격보다 <b>사진·광고채널·시설</b> 점검 우선.`;}
+    box.className="vd "+cls;
+    box.innerHTML=msg+`<br><span style="opacity:.7">${esc(b.dong)} 월세 시세 ${(+w).toFixed(2)}만/㎡ · 진단 순서: 가격→사진→채널→시설→관리</span>`;
+  };
   function infoHTML(b){
     const hasEst=b.val!=null;
     const val=hasEst?`${b.val}억`:"—";
@@ -202,7 +239,9 @@
       <div class="sect"><div class="sect-t">호가 저평가 판정</div>
         <a class="naverbtn" href="https://m.land.naver.com/search/result/${nvQ}" target="_blank" rel="noopener noreferrer">네이버 부동산에서 이 주소 매물 보기 →</a>
         <div class="vbox"><label>호가 입력 <input type="number" inputmode="decimal" min="0" step="0.1" placeholder="예 6.5" oninput="vsVerdict('${b.id}',this.value)"> 억</label></div>
-        <div class="vd" id="vd-${b.id}">네이버에서 호가를 확인해 입력하면, 해당 동 실거래 시세 대비 저평가 여부를 판정합니다.</div></div>
+        <div class="vd" id="vd-${b.id}">네이버에서 호가를 확인해 입력하면, 해당 동 실거래 시세 대비 저평가 여부를 판정합니다.</div>
+        <div class="vbox" style="margin-top:10px"><label>월세 진단 <input type="number" inputmode="numeric" min="0" step="5" placeholder="현재 월세" oninput="vsRent('${b.id}',this.value)"> 만원</label></div>
+        <div class="vd" id="rd-${b.id}">현재 받는 월세(건물 전체)를 넣으면 동 시세 대비 적정성 — 공실 1차 진단.</div></div>
       <div class="sect"><div class="sect-t">리모델링 가치상승 <span class="tag">추정</span></div>
         <div class="rvtabs" id="rvt-${b.id}">
           <button data-t="0" onclick="vsReno('${b.id}',0)">경량</button>
@@ -212,7 +251,7 @@
       : `<div class="est" style="display:block;text-align:left;color:#7A879C">대형·비주거 건물 — 간이 추정(다가구 시세) 대상이 아닙니다. 개별 실사·감정 필요.</div>`;
     return `<div class="iw">
       <button class="close" onclick="vsClose()" aria-label="닫기">&times;</button>
-      <div class="hd"><div class="hdtop"><span class="badge">${esc(b.use)}</span><span class="dong">${esc(b.dong)}</span></div>
+      <div class="hd"><div class="hdtop"><span class="badge">${esc(b.use)}</span><span class="dong">${esc(b.dong)}</span>${DTYPE[b.dong]?`<span style="font:700 10px ui-monospace,monospace;color:#fff;background:${DTCOL[DTYPE[b.dong]]};padding:2px 7px;border-radius:5px">${DTYPE[b.dong]}</span>`:""}</div>
         <h2>${esc(b.address)}</h2></div>
       <div class="bd">
         <div class="stats">
@@ -222,6 +261,7 @@
           <div class="stat hl"><div class="k">실현 수익률</div><div class="v">${nyld}${grossTxt?`<span style="font-size:10px;font-weight:600;color:#8290A5"> ${grossTxt}</span>`:""}</div></div>
         </div>
         ${(b.units||b.floors!=null)?`<div class="meta">${b.units?`<span>${b.unit_kind||"세대"}수 <b>${b.units}</b></span>`:""}${b.floors!=null?`<span>지상 <b>${b.floors}층</b></span>`:""}</div>`:""}
+        ${(()=>{const na=nearAnchors(b);return na.length?`<div class="meta" style="flex-wrap:wrap;gap:5px 13px;margin-top:7px">${na.map(x=>`<span>★ ${esc(x.a.name)} <b>${fmtD(x.d)}</b></span>`).join("")}</div>`:""})()}
         ${estBody}
         <div class="note">※ <b>실현 수익률</b> = 공실·운영비·노후 자본지출 반영(연식 기반 가정, 신뢰도 D). <b>총 수익률</b>은 임대료÷가격(비용 미반영). 추정치는 확정 감정가·공사견적·대출 가능성 아님.</div>
       </div></div>`;
@@ -362,6 +402,7 @@
     infoWindow=new naver.maps.InfoWindow({borderWidth:0,backgroundColor:"transparent",pixelOffset:new naver.maps.Point(0,-6)});
     naver.maps.Event.addListener(map,"idle",scheduleRender);
     naver.maps.Event.addListener(map,"click",()=>infoWindow.close());  // 빈 지도 클릭 → 카드 닫기
+    drawAnchors();
     buildUI();setupGeo();render();
   }
   function showErr(m){el("maperr").textContent=m;el("maperr").classList.add("on");el("loading").style.display="none";}
@@ -374,6 +415,7 @@
     setTimeout(()=>{if(!map)showErr("네이버 지도 응답 지연 — 새로고침/키 확인.");},7000);
   }
   D._byId={};D.buildings.forEach(b=>D._byId[b.id]=b);
+  el("anchorBtn").addEventListener("click",()=>{showAnchors=!showAnchors;el("anchorBtn").textContent=showAnchors?"★ 앵커 ON":"☆ 앵커 OFF";drawAnchors();});
   if(!D.count)D.count=D.buildings.length;
   loadNaver();
 </script>
