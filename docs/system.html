@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>BRING 사업체계도</title>
+<style>
+  :root{
+    --sans:system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+    --mono:ui-monospace,"SF Mono","Roboto Mono",Menlo,monospace;
+    --bg:#EEF1F7;--surface:#FFFFFF;--surface-2:#F4F6FB;--ink:#131A26;--ink-2:#46536B;--muted:#7A879C;
+    --line:#E4E9F1;--line-strong:#CBD3E1;--accent:#1B4FD8;--go:#137A3C;--warn:#C77A0A;
+    --shadow:0 1px 2px rgba(19,26,38,.05),0 10px 30px rgba(19,26,38,.07);
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0B0F17;--surface:#131A27;--surface-2:#1A2231;--ink:#EAF0F8;--ink-2:#A9B6CC;--muted:#6E7C93;
+    --line:#26313F;--line-strong:#33404F;--accent:#5385F0;--go:#4CB37A;--warn:#E0A83A;
+  }}
+  *{box-sizing:border-box;} body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;line-height:1.5;}
+  .wrap{max-width:1000px;margin:0 auto;padding:26px 18px 80px;}
+  .top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px;}
+  .brand{font-weight:800;font-size:20px;}.brand b{color:var(--accent);}
+  .top .meta{font-family:var(--mono);font-size:11px;color:var(--muted);}
+  h1{font-size:15px;margin:26px 0 12px;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;}
+  h1 .n{font-family:var(--mono);font-size:11px;font-weight:800;color:#fff;background:var(--accent);width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow);}
+  .hero{background:linear-gradient(135deg,#1B4FD8,#3B67D6);color:#fff;border:0;}
+  .hero h2{margin:0 0 8px;font-size:22px;letter-spacing:-.02em;}
+  .hero p{margin:0;font-size:14px;line-height:1.65;opacity:.95;}
+  /* 밸류체인 */
+  .chain{display:flex;gap:8px;flex-wrap:wrap;}
+  .step{flex:1;min-width:150px;background:var(--surface-2);border-radius:12px;padding:13px 14px;position:relative;}
+  .step .t{font-family:var(--mono);font-size:10px;color:var(--accent);font-weight:800;}
+  .step .h{font-weight:700;font-size:13.5px;margin:4px 0 3px;}
+  .step .d{font-size:11.5px;color:var(--muted);line-height:1.5;}
+  .step .badge{position:absolute;top:11px;right:12px;font-size:9.5px;font-family:var(--mono);padding:1px 6px;border-radius:5px;}
+  .b-live{background:var(--go);color:#fff;}.b-part{background:var(--warn);color:#fff;}.b-plan{background:var(--line-strong);color:var(--ink-2);}
+  /* 5층 */
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;}
+  thead th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);}
+  td.n{font-family:var(--mono);font-weight:700;text-align:right;white-space:nowrap;}
+  .rev{display:flex;flex-direction:column;gap:8px;}
+  .layer{display:grid;grid-template-columns:120px 1fr auto;gap:12px;align-items:center;padding:11px 13px;border-radius:11px;background:var(--surface-2);}
+  .layer .lab{font-weight:800;font-size:12.5px;}
+  .layer .lab small{display:block;font-family:var(--mono);font-weight:500;font-size:9.5px;color:var(--muted);text-transform:uppercase;}
+  .layer .it{font-size:12px;color:var(--ink-2);}
+  .layer .pr{font-family:var(--mono);font-weight:700;font-size:12px;white-space:nowrap;}
+  .pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+  .pillar{background:var(--surface-2);border-radius:13px;padding:15px 16px;}
+  .pillar .k{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+  .pillar .big{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:5px 0 3px;color:var(--go);}
+  .pillar .d{font-size:11.5px;color:var(--ink-2);line-height:1.5;}
+  .sys{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .sysbox{background:var(--surface-2);border-radius:12px;padding:14px 16px;}
+  .sysbox h3{margin:0 0 8px;font-size:13px;}
+  .sysbox ul{margin:0;padding-left:16px;font-size:12px;color:var(--ink-2);line-height:1.7;}
+  .sysbox a{color:var(--accent);}
+  .road{display:flex;gap:8px;flex-wrap:wrap;}
+  .mile{flex:1;min-width:150px;border:1px solid var(--line);border-radius:12px;padding:13px 14px;}
+  .mile .ph{font-family:var(--mono);font-size:10px;color:var(--accent);font-weight:800;}
+  .mile .g{font-size:15px;font-weight:800;margin:4px 0;}
+  .mile .d{font-size:11.5px;color:var(--muted);line-height:1.5;}
+  .note{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;}
+  .gap{margin-bottom:16px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">BRING <b>사업체계도</b></div>
+    <div class="meta">2026-08 · 원주 다가구 5,129동 · 관리 7동 · v1</div>
+  </div>
+
+  <div class="card hero gap">
+    <h2>흩어진 원룸·다가구를 하나의 단지처럼 관리한다</h2>
+    <p>지역 내 소형 임대건물을 <b>공동으로 관리</b>하고, <b>공실을 줄이며</b>, 입주자 생활서비스와 지역 데이터로 <b>임대수익의 안정성과 건물가치를 높이는</b> 지역형 주거 운영회사. — 관리사무소 없는 소형건물의 관리 파트너.</p>
+  </div>
+
+  <h1><span class="n">1</span> 밸류체인 5단계</h1>
+  <div class="card gap">
+    <div class="chain">
+      <div class="step"><span class="badge b-live">가동</span><div class="t">① 발굴</div><div class="h">시장·공실 분석</div><div class="d">원주 24,933건 지도, 다가구 밀집·수급 매트릭스</div></div>
+      <div class="step"><span class="badge b-live">가동</span><div class="t">② 심사</div><div class="h">가치·수익 판정</div><div class="d">실현수익률·저평가·상권 적합도 엔진</div></div>
+      <div class="step"><span class="badge b-part">일부</span><div class="t">③ 가치상승</div><div class="h">공실해결·리모델링</div><div class="d">공실 진단→광고 재기획, 리모델링 ROI</div></div>
+      <div class="step"><span class="badge b-part">일부</span><div class="t">④ 운영</div><div class="h">공동관리·생활서비스</div><div class="d">케이스 시스템(민원·수리·입퇴실)</div></div>
+      <div class="step"><span class="badge b-plan">예정</span><div class="t">⑤ DT 유지관리</div><div class="h">IoT·데이터</div><div class="d">누수·온습도 센서, 운영데이터 축적</div></div>
+    </div>
+  </div>
+
+  <h1><span class="n">2</span> 사업 5층 구조 (누가 고객이고 어디서 버나)</h1>
+  <div class="card gap">
+    <table>
+      <thead><tr><th>사업층</th><th>고객</th><th>수익원</th></tr></thead>
+      <tbody>
+        <tr><td><b>시장·공실 분석</b></td><td>건물주</td><td class="n">진단비·기획비</td></tr>
+        <tr><td><b>지역 공동관리</b></td><td>건물주</td><td class="n">월 관리비</td></tr>
+        <tr><td><b>공실 해결</b></td><td>건물주</td><td class="n">공실관리·광고기획비</td></tr>
+        <tr><td><b>입주자 생활서비스</b></td><td>임차인·제휴사</td><td class="n">이용료·제휴수익</td></tr>
+        <tr><td><b>건물 가치상승</b></td><td>건물주</td><td class="n">기획·공사관리·성과보수</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h1><span class="n">3</span> 수익 3층 구조</h1>
+  <div class="card gap">
+    <div class="rev">
+      <div class="layer"><div class="lab">① 고정<small>MRR·base</small></div><div class="it">공동관리(예측 가능 매출) — 회사가치의 뿌리이자 접점·데이터 입장권</div><div class="pr">8.9만 / 15만</div></div>
+      <div class="layer"><div class="lab">② 반복변동<small>구독</small></div><div class="it">공용부 청소, 생활서비스</div><div class="pr">6·7·8만</div></div>
+      <div class="layer"><div class="lab">③ 트랜잭션<small>이벤트</small></div><div class="it">입퇴실청소·수리관리(작업비 5%)·공실해결·중개보수</div><div class="pr">건별</div></div>
+      <div class="layer"><div class="lab">④ 부가·제휴<small>규모 확보 시</small></div><div class="it">공동구매 수수료·어메니티 이용료 (세입자 규모 = 협상력·매체)</div><div class="pr">향후</div></div>
+    </div>
+    <div class="note">※ 고정수익은 "낮게·많이·범위 엄격하게" — 관리비는 마진이 아니라 규모·데이터를 확보하는 입장권. 실제 수익은 ②③④에서.</div>
+  </div>
+
+  <h1><span class="n">4</span> 사업성 3기둥 (투자자가 보는 것 = 우리가 키우는 것)</h1>
+  <div class="card gap">
+    <div class="pillars">
+      <div class="pillar"><div class="k">① Unit Economics</div><div class="big">+10만<span style="font-size:13px">/월·동</span></div><div class="d">건물당 공헌이익(가정). 각 건물이 흑자 → 묶을수록 는다 = 사업 성립</div></div>
+      <div class="pillar"><div class="k">② 시장규모</div><div class="big">연 20억</div><div class="d">원주 다가구 20%(1,026동) 침투 시. 원주 이론상한 101억 · 전국 스케일 조 단위</div></div>
+      <div class="pillar"><div class="k">③ 성장경로</div><div class="big">7 → 512동</div><div class="d">단구동 등 밀집 블록부터. 침투 10%면 연 10억, 20%면 연 20억</div></div>
+    </div>
+    <div class="note">※ 위 숫자는 <b>모델(가정)</b>. 증명 변수 2개 = <b>침투율(영업)</b> · <b>건물당 원가(운영)</b>. 7동 실측으로 가정→증명 전환 중.</div>
+  </div>
+
+  <h1><span class="n">5</span> 시스템 — 남들에 없는 무기</h1>
+  <div class="card gap">
+    <div class="sys">
+      <div class="sysbox">
+        <h3>ValueScope (발굴·심사·영업)</h3>
+        <ul>
+          <li>원주 건물 지도 — 추정가치·실현수익률·저평가 판정</li>
+          <li>영업 지도 — 다가구 밀집 블록 + 중개사 786곳 + 방문 CRM</li>
+          <li>밸류업 실증 — 개선 전/후 NOI·회수기간</li>
+          <li>상권분석 — 수급 매트릭스·앵커·기획 적합도</li>
+        </ul>
+      </div>
+      <div class="sysbox">
+        <h3>Building OS (운영)</h3>
+        <ul>
+          <li>케이스 시스템 — 민원 접수→업체→견적→승인→공사→보고</li>
+          <li>알림톡·전후 사진·팀 결제 캘린더</li>
+          <li>Building ID·CRM·공실 워크플로 (구축 중)</li>
+          <li>IoT 센서(누수·온습도) — DT 유지관리 (예정)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h1><span class="n">6</span> 성장 로드맵</h1>
+  <div class="card">
+    <div class="road">
+      <div class="mile"><div class="ph">NOW</div><div class="g">거점 다지기</div><div class="d">7동 → 한 블록 밀도 100%, 사업성 가정 실측 검증</div></div>
+      <div class="mile"><div class="ph">단기</div><div class="g">원주 512동</div><div class="d">침투 10% · 연 10억 · 공동관리 Zone 확립</div></div>
+      <div class="mile"><div class="ph">중기</div><div class="g">원주 1,026동</div><div class="d">침투 20% · 연 20억 · 어메니티·부가수익</div></div>
+      <div class="mile"><div class="ph">확장</div><div class="g">강원 → 전국</div><div class="d">춘천·강릉 복제 (검증된 생활권 모델)</div></div>
+    </div>
+    <div class="note">BRING ValueScope · 사업체계도 v1 · 수치는 가정·모델이며 실측으로 갱신 (신뢰도 C~D)</div>
+  </div>
+</div>
+</body>
+</html>
