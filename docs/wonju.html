@@ -141,6 +141,7 @@
   </div>
 </div>
 <script src="./data/wonju.js"></script>
+<script src="./crm-bridge.js"></script>
 <script>
   const DEFAULT_NAVER_MAPS_KEY="1iu68jzhci",KEY_STORE="bring_naver_maps_key";
   const params=new URLSearchParams(location.search);
@@ -191,7 +192,10 @@
     });
   }
 
-  function openInfo(b,m){infoWindow.setContent(infoHTML(b));infoWindow.open(map,m);setTimeout(()=>window.vsReno(b.id,1),0);}
+  function openInfo(b,m){
+    infoWindow.setContent(infoHTML(b));infoWindow.open(map,m);setTimeout(()=>window.vsReno(b.id,1),0);
+    BringValueScope.select("wonju",{externalId:String(b.id),name:b.name||b.address||"원주 건물",address:b.address||"",lat:b.lat,lng:b.lng,category:b.use||"건물",summary:[b.dong,b.age_label,b.nyld==null?"":`실현수익률 ${b.nyld}%`].filter(Boolean).join(" · ")});
+  }
   window.vsClose=function(){if(infoWindow)infoWindow.close();};
   let map,infoWindow,searchMarker=null,overlays=[],colorMode="yield";
   const activeTypes=new Set(BUCKETS);let activeDong="";
@@ -417,6 +421,7 @@
   D._byId={};D.buildings.forEach(b=>D._byId[b.id]=b);
   el("anchorBtn").addEventListener("click",()=>{showAnchors=!showAnchors;el("anchorBtn").textContent=showAnchors?"★ 앵커 ON":"☆ 앵커 OFF";drawAnchors();});
   if(!D.count)D.count=D.buildings.length;
+  BringValueScope.ready("wonju");
   loadNaver();
 </script>
 </body>
